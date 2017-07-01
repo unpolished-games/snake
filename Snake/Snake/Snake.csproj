@@ -116,6 +116,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\for Deployment\screenshot for tile.png" />
+    <Content Include="Assets\for the Game\253619__xtrgamr__potato-chip-crunch-2.wav" />
+    <Content Include="Assets\for the Game\381772__stumpbutt__retro-1up-3-sfx.wav" />
+    <Content Include="Assets\for the Game\387433__blosche__video-game-die.wav" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-100.png" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-125.png" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-150.png" />

@@ -121,6 +121,8 @@ namespace Snake
             }
         }
 
+        internal Action<Moment> OnMoment;
+
         internal State Update(State state, Input key)
         {
             var snake = MoveSnake(state.snake, key);
@@ -130,11 +132,18 @@ namespace Snake
 
             if (bitten)
             {
+                OnMoment?.Invoke(Moment.Dying);
                 return Init(state.highscore);
             }
             else if (eaten)
             {
+                OnMoment?.Invoke(Moment.EatingApple);
                 var score = state.score + 1;
+
+                if(score > state.highscore)
+                {
+                    OnMoment?.Invoke(Moment.NewHighscore);
+                }
                 
                 var highscore = score > state.highscore ? score : state.highscore;
                 return new State
@@ -147,6 +156,8 @@ namespace Snake
             }
             else if(moving)
             {
+
+                OnMoment?.Invoke(Moment.Moving);
                 return new State
                 {
                     apple = state.apple,
@@ -168,5 +179,13 @@ namespace Snake
         Up,
         Right,
         Down
+    }
+
+    enum Moment
+    {
+        EatingApple,
+        Dying,
+        NewHighscore,
+        Moving
     }
 }

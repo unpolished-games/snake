@@ -25,3 +25,21 @@
 /processorParam:TextureFormat=NoChange
 /build:glowing Tile.png
 
+#begin dying Snake.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:dying Snake.wav
+
+#begin eating Apple.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:eating Apple.wav
+
+#begin new Highscore.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:new Highscore.wav
+
