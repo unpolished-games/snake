@@ -25,7 +25,7 @@ namespace Snake
 
             Action intro = async () =>
             {
-                await Task.Delay(2000);
+                await Task.Delay(5000);
                 scene0.Visibility = Visibility.Collapsed;
                 scene1.Visibility = Visibility.Visible;
                 await Task.Delay(1000);

@@ -19,7 +19,7 @@ namespace Snake
         SoundEffect dyingSnake;
         SoundEffect newHighscore;
 
-        Song album01;
+        SoundEffect album01;
 
         Random random;
 
@@ -106,12 +106,16 @@ namespace Snake
             dyingSnake = Content.Load<SoundEffect>("dying Snake");
             newHighscore = Content.Load<SoundEffect>("new Highscore");
 
-            album01 = Content.Load<Song>("Album/01");
+            album01 = Content.Load<SoundEffect>("Album/01");
 
-
-            MediaPlayer.Play(album01);
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = .5f;
+            //album01.Play(.5f, 0, 0);
+            var player = album01.CreateInstance();
+            player.IsLooped = true;
+            player.Volume = .5f;
+            player.Play();
+            //MediaPlayer.Play(album01);
+            //MediaPlayer.IsRepeating = true;
+            //MediaPlayer.Volume = .5f;
 
             AddGlitter(150);
 
