@@ -1,0 +1,172 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+
+namespace Snake
+{
+    internal struct Apple
+    {
+        public Vector2 position;
+    }
+    internal struct Snake
+    {
+        public Vector2 position;
+        public Vector2 speed;
+        public List<Vector2> links;
+        public int length;
+    }
+    internal struct State
+    {
+        public Apple apple;
+        public Snake snake;
+        public int score;
+        public int highscore;
+    }
+
+    public class Game
+    {
+        Random r;
+        int tiles;
+        public int Tiles => tiles;
+
+        public Game(int tiles)
+        {
+            this.r = new Random();
+            this.tiles = tiles;
+        }
+
+        Apple NextApple() => new Apple { position = new Vector2(r.Next(0, tiles), r.Next(0, tiles)) };
+        Snake NextSnake() => new Snake
+        {
+            position = new Vector2((float)Math.Floor(tiles / 2f), (float)Math.Floor(tiles / 2f)),
+            speed = Vector2.Zero,
+            links = new List<Vector2>(),
+            length = 5
+        };
+
+        internal State Init(int highscore)
+        {
+            return new State
+            {
+                apple = NextApple(),
+                snake = NextSnake(),
+                score = 0,
+                highscore = highscore
+            };
+        }
+
+        public Vector2 NextSpeed(Vector2 speed, Key key = Key.None)
+        {
+            if (key != Key.None)
+            {
+                return new Vector2(
+                    (key == Key.Right ? 1 : 0) - (key == Key.Left ? 1 : 0),
+                    (key == Key.Down ? 1 : 0) - (key == Key.Up ? 1 : 0)
+                );
+            }
+            else
+            {
+                return speed;
+            }
+        }
+
+        bool IsMoving(Vector2 speed) => speed != Vector2.Zero;
+
+        Snake MoveSnake(Snake snake, Key key)
+        {
+            var speed = NextSpeed(snake.speed, key);
+            var nextPosition = snake.position + speed;
+            return new Snake
+            {
+                position = new Vector2(
+                    (snake.position.X + speed.X + tiles) % tiles,
+                    (snake.position.Y + speed.Y + tiles) % tiles
+                ),
+                speed = speed,
+                links = new List<Vector2>(snake.links),
+                length = snake.length
+            };
+        }
+
+        bool IsEatingApple(Vector2 position, Apple apple) => position == apple.position;
+
+        bool BitesHimself(Snake snake)
+        {
+            return IsMoving(snake.speed) && snake.links.Any(link => link == snake.position);
+        }
+
+        Snake NextTail(Snake snake, bool isGrowing)
+        {
+            var links = snake.links.Concat(new Vector2[] { snake.position });
+            if (isGrowing)
+            {
+                return new Snake
+                {
+                    position = snake.position,
+                    speed = snake.speed,
+                    links = links.ToList(),
+                    length = snake.length + 1
+                };
+            }
+            else
+            {
+                return new Snake
+                {
+                    position = snake.position,
+                    speed = snake.speed,
+                    links = links.Reverse().Take(snake.length).Reverse().ToList(),
+                    length = snake.length
+                };
+            }
+        }
+
+        internal State Update(State state, Key key)
+        {
+            var snake = MoveSnake(state.snake, key);
+            var eaten = IsEatingApple(snake.position, state.apple);
+            var bitten = BitesHimself(snake);
+            var moving = IsMoving(snake.speed);
+
+            if (bitten)
+            {
+                return Init(state.highscore);
+            }
+            else if (eaten)
+            {
+                var score = state.score + 1;
+                
+                var highscore = score > state.highscore ? score : state.highscore;
+                return new State
+                {
+                    apple = NextApple(),
+                    snake = NextTail(snake, true),
+                    score = score,
+                    highscore = highscore
+                };
+            }
+            else if(moving)
+            {
+                return new State
+                {
+                    apple = state.apple,
+                    snake = NextTail(snake, false),
+                    score = state.score,
+                    highscore = state.highscore
+                };
+            } else
+            {
+                return state;
+            }
+        }
+    };
+
+    public enum Key
+    {
+        None,
+        Left,
+        Up,
+        Right,
+        Down
+    }
+}
