@@ -10,6 +10,7 @@ namespace Snake
         GraphicsDeviceManager graphics;
         BasicEffect basicEffect;
         State state;
+        Texture2D glowingTile;
 
         public Engine()
         {
@@ -27,6 +28,12 @@ namespace Snake
         {
             base.Initialize();
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
+        }
+
+        protected override void LoadContent()
+        {
+            base.LoadContent();
+            glowingTile = Content.Load<Texture2D>("glowing Tile");
         }
 
         private void Window_ClientSizeChanged(object sender, System.EventArgs e)
@@ -56,7 +63,10 @@ namespace Snake
             basicEffect.World = Matrix.CreateTranslation(-8, 8, 0) * Matrix.CreateScale(1f / 8);
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
             basicEffect.VertexColorEnabled = true;
+            basicEffect.TextureEnabled = true;
+            basicEffect.Texture = glowingTile;
             basicEffect.CurrentTechnique.Passes.First().Apply();
 
             for(var y = 0; y < 16; y++)
@@ -91,16 +101,23 @@ namespace Snake
 
         private void DrawSquare(int x, int y, float scale, Color color)
         {
-            var vertices = new Vector3[]
+            var vertices = new VertexPositionColorTexture[]
             {
-                Vector3.Zero,
-                new Vector3(0, 1, 0),
-                new Vector3(1, 0, 0),
-                new Vector3(1, 1, 0)
+                new VertexPositionColorTexture(Vector3.Zero, color, Vector2.Zero),
+                new VertexPositionColorTexture(new Vector3(0, 1, 0), color, Vector2.UnitX),
+                new VertexPositionColorTexture(new Vector3(1, 0, 0), color, Vector2.UnitY),
+                new VertexPositionColorTexture(new Vector3(1, 1, 0), color, Vector2.One)                
             }
-            .Select(p => (p - new Vector3(0.5f)) * scale + new Vector3(0.5f))
-            .Select(p => (p + new Vector3(x, y, 0)) * (Vector3.Down + Vector3.Right))
-            .Select(p => new VertexPositionColor(p, color))
+            .Select(v => new VertexPositionColorTexture(
+                (v.Position - new Vector3(0.5f)) * scale * 2 + new Vector3(0.5f),
+                v.Color,
+                v.TextureCoordinate
+            ))
+            .Select(v => new VertexPositionColorTexture(
+                (v.Position + new Vector3(x, y, 0)) * (Vector3.Down + Vector3.Right),
+                v.Color,
+                v.TextureCoordinate
+            ))
             .ToArray();
             graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, 2);
         }
