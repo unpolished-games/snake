@@ -131,6 +131,7 @@ namespace Snake
                 }
             }
             base.Draw(gameTime);
+            //OnDraw(state); // some threading issue i guess.. 
         }
 
         private void DrawSquare(int x, int y, float scale, Color color)
