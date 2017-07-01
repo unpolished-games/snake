@@ -10,6 +10,7 @@ namespace Snake
     {
         Queue<Input> keys;
         Engine engine;
+        State state;
 
         public MainPage()
         {
@@ -21,8 +22,15 @@ namespace Snake
             engine = MonoGame.Framework.XamlGame<Engine>.Create(string.Empty, Window.Current.CoreWindow, monogameRenderTarget);
             engine.OnDraw = state =>
             {
-                score.Text = $"{state.score}";
-                highscore.Text = $"{state.highscore}";
+                if(state.score != this.state.score || state.highscore != this.state.highscore)
+                {
+                    var _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
+                    {
+                        score.Text = $"{state.score}";
+                        highscore.Text = $"{state.highscore}";
+                    }));
+                    this.state = state;
+                }
             };
         }
 
