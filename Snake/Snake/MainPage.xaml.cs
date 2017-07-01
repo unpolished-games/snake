@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Windows.ApplicationModel.Core;
+using Windows.Storage;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -20,6 +22,13 @@ namespace Snake
             titleBar.ExtendViewIntoTitleBar = true;
 
             engine = MonoGame.Framework.XamlGame<Engine>.Create(string.Empty, Window.Current.CoreWindow, monogameRenderTarget);
+            try
+            {
+                engine.SetNewHighscore(Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]));
+            } catch(Exception)
+            {
+                // no highscore set yet..
+            }
             engine.OnDraw = state =>
             {
                 if(state.score != this.state.score || state.highscore != this.state.highscore)
@@ -29,9 +38,22 @@ namespace Snake
                         score.Text = $"{state.score}";
                         highscore.Text = $"{state.highscore}";
                     }));
+                    if(state.highscore != this.state.highscore)
+                    {
+                        ApplicationData.Current.RoamingSettings.Values["HighPriority"] = state.highscore;
+                    }
                     this.state = state;
                 }
             };
+
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+        }
+
+        private void Current_DataChanged(ApplicationData sender, object args)
+        {
+            var highscore = Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]);
+
+            engine.SetNewHighscore(highscore);
         }
 
         private void Page_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)

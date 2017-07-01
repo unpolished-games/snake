@@ -15,6 +15,11 @@ namespace Snake
         Game game;
         State state;
 
+        double milliseconds;
+        double rate = 1000 / 15;
+
+        Input bufferedInput = Input.None;
+
         public Action<State> OnDraw { get; internal set; }
 
         public Engine()
@@ -54,11 +59,16 @@ namespace Snake
             }
         }
 
+        internal void SetNewHighscore(int highscore)
+        {
+            state.highscore = Math.Max(state.highscore, highscore);
+        }
+
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             var keyboard = Keyboard.GetState();
-            var input = Input.None;
+            var input = bufferedInput;
             input = keyboard.IsKeyDown(Keys.Left) ? Input.Left : input;
             input = keyboard.IsKeyDown(Keys.Right) ? Input.Right : input;
             input = keyboard.IsKeyDown(Keys.Up) ? Input.Up : input;
@@ -69,7 +79,18 @@ namespace Snake
             input = gamepad.IsButtonDown(Buttons.DPadRight) ? Input.Right : input;
             input = gamepad.IsButtonDown(Buttons.DPadUp) ? Input.Up : input;
             input = gamepad.IsButtonDown(Buttons.DPadDown) ? Input.Down : input;
-            state = game.Update(state, input);
+
+            milliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (milliseconds > rate)
+            {
+                milliseconds -= rate;
+
+                state = game.Update(state, input);
+
+                input = Input.None;
+            }
+
+            bufferedInput = input;
 
         }
 
