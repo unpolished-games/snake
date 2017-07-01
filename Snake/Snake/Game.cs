@@ -56,13 +56,13 @@ namespace Snake
             };
         }
 
-        public Vector2 NextSpeed(Vector2 speed, Key key = Key.None)
+        public Vector2 NextSpeed(Vector2 speed, Input key = Input.None)
         {
-            if (key != Key.None)
+            if (key != Input.None)
             {
                 return new Vector2(
-                    (key == Key.Right ? 1 : 0) - (key == Key.Left ? 1 : 0),
-                    (key == Key.Down ? 1 : 0) - (key == Key.Up ? 1 : 0)
+                    (key == Input.Right ? 1 : 0) - (key == Input.Left ? 1 : 0),
+                    (key == Input.Down ? 1 : 0) - (key == Input.Up ? 1 : 0)
                 );
             }
             else
@@ -73,7 +73,7 @@ namespace Snake
 
         bool IsMoving(Vector2 speed) => speed != Vector2.Zero;
 
-        Snake MoveSnake(Snake snake, Key key)
+        Snake MoveSnake(Snake snake, Input key)
         {
             var speed = NextSpeed(snake.speed, key);
             var nextPosition = snake.position + speed;
@@ -121,7 +121,7 @@ namespace Snake
             }
         }
 
-        internal State Update(State state, Key key)
+        internal State Update(State state, Input key)
         {
             var snake = MoveSnake(state.snake, key);
             var eaten = IsEatingApple(snake.position, state.apple);
@@ -161,7 +161,7 @@ namespace Snake
         }
     };
 
-    public enum Key
+    public enum Input
     {
         None,
         Left,

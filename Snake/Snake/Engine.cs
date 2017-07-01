@@ -1,6 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using System;
 using System.Linq;
 
 namespace Snake
@@ -9,8 +10,12 @@ namespace Snake
     {
         GraphicsDeviceManager graphics;
         BasicEffect basicEffect;
-        State state;
         Texture2D glowingTile;
+
+        Game game;
+        State state;
+
+        public Action<State> OnDraw { get; internal set; }
 
         public Engine()
         {
@@ -22,6 +27,9 @@ namespace Snake
             IsMouseVisible = false;
             Content.RootDirectory = "Content";
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
+
+            game = new Game(16);
+            state = game.Init(0);
         }
 
         protected override void Initialize()
@@ -38,7 +46,7 @@ namespace Snake
 
         private void Window_ClientSizeChanged(object sender, System.EventArgs e)
         {
-            if(graphics.PreferredBackBufferWidth != Window.ClientBounds.Width || graphics.PreferredBackBufferHeight != Window.ClientBounds.Height)
+            if (graphics.PreferredBackBufferWidth != Window.ClientBounds.Width || graphics.PreferredBackBufferHeight != Window.ClientBounds.Height)
             {
                 graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
                 graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
@@ -46,32 +54,58 @@ namespace Snake
             }
         }
 
+        protected override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            var keyboard = Keyboard.GetState();
+            var input = Input.None;
+            input = keyboard.IsKeyDown(Keys.Left) ? Input.Left : input;
+            input = keyboard.IsKeyDown(Keys.Right) ? Input.Right : input;
+            input = keyboard.IsKeyDown(Keys.Up) ? Input.Up : input;
+            input = keyboard.IsKeyDown(Keys.Down) ? Input.Down : input;
+
+            var gamepad = GamePad.GetState(PlayerIndex.One);
+            input = gamepad.IsButtonDown(Buttons.DPadLeft) ? Input.Left : input;
+            input = gamepad.IsButtonDown(Buttons.DPadRight) ? Input.Right : input;
+            input = gamepad.IsButtonDown(Buttons.DPadUp) ? Input.Up : input;
+            input = gamepad.IsButtonDown(Buttons.DPadDown) ? Input.Down : input;
+            state = game.Update(state, input);
+
+        }
+
         protected override void Draw(GameTime gameTime)
         {
-            graphics.GraphicsDevice.Clear(Color.Black);
+            graphics.GraphicsDevice.Clear(Color.DarkViolet);
 
             var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
 
             if (size.height < size.width)
             {
-                basicEffect.View = Matrix.CreateScale(new Vector3(1f * size.height / size.width, 1, 1));
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1f * size.height / size.width, 1, 1));
             }
             else
             {
-                basicEffect.View = Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
             }
-            basicEffect.World = Matrix.CreateTranslation(-8, 8, 0) * Matrix.CreateScale(1f / 8);
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             basicEffect.VertexColorEnabled = true;
             basicEffect.TextureEnabled = true;
             basicEffect.Texture = glowingTile;
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
             basicEffect.CurrentTechnique.Passes.First().Apply();
 
-            for(var y = 0; y < 16; y++)
+            basicEffect.World = Matrix.Identity;
+            basicEffect.CurrentTechnique.Passes.First().Apply();
+            DrawSquare(0, 0, 2, Color.Black);
+
+            basicEffect.World = Matrix.CreateTranslation(-7.5f, -7.5f, 0) * Matrix.CreateScale(1f / 8);
+            basicEffect.CurrentTechnique.Passes.First().Apply();
+
+            for (var y = 0; y < 16; y++)
             {
-                for(var x = 0; x < 16; x++)
+                for (var x = 0; x < 16; x++)
                 {
                     var rect = (x0: x, y0: y, x1: x + 1, y1: y + 1);
                     var position = new System.Numerics.Vector2(x, y);
@@ -101,30 +135,22 @@ namespace Snake
 
         private void DrawSquare(int x, int y, float scale, Color color)
         {
+            var positions = new Vector3[]
+            {
+                new Vector3(x - scale, y - scale, 0),
+                new Vector3(x - scale, y + scale, 0),
+                new Vector3(x + scale, y - scale, 0),
+                new Vector3(x + scale, y + scale, 0)
+            }
+            .ToArray();
             var vertices = new VertexPositionColorTexture[]
             {
-                new VertexPositionColorTexture(Vector3.Zero, color, Vector2.Zero),
-                new VertexPositionColorTexture(new Vector3(0, 1, 0), color, Vector2.UnitX),
-                new VertexPositionColorTexture(new Vector3(1, 0, 0), color, Vector2.UnitY),
-                new VertexPositionColorTexture(new Vector3(1, 1, 0), color, Vector2.One)                
-            }
-            .Select(v => new VertexPositionColorTexture(
-                (v.Position - new Vector3(0.5f)) * scale * 2 + new Vector3(0.5f),
-                v.Color,
-                v.TextureCoordinate
-            ))
-            .Select(v => new VertexPositionColorTexture(
-                (v.Position + new Vector3(x, y, 0)) * (Vector3.Down + Vector3.Right),
-                v.Color,
-                v.TextureCoordinate
-            ))
-            .ToArray();
+                new VertexPositionColorTexture(positions[0], color, Vector2.Zero),
+                new VertexPositionColorTexture(positions[1], color, Vector2.UnitX),
+                new VertexPositionColorTexture(positions[2], color, Vector2.UnitY),
+                new VertexPositionColorTexture(positions[3], color, Vector2.One)
+            };
             graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, 2);
-        }
-
-        internal void SetState(State state)
-        {
-            this.state = state;
         }
     }
 }
