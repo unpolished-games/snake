@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Storage;
 using Windows.UI.ViewManagement;
@@ -20,33 +21,50 @@ namespace Snake
             this.InitializeComponent();
             var titleBar = CoreApplication.GetCurrentView().TitleBar;
             titleBar.ExtendViewIntoTitleBar = true;
+            ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
 
+            Action intro = async () =>
+            {
+                await Task.Delay(2000);
+                scene0.Visibility = Visibility.Collapsed;
+                scene1.Visibility = Visibility.Visible;
+                await Task.Delay(1000);
+                scene1.Visibility = Visibility.Collapsed;
+                scene2.Visibility = Visibility.Visible;
+                StartGame();
+            };
+            intro();
+
+            ApplicationData.Current.DataChanged += Current_DataChanged;
+        }
+
+        private void StartGame()
+        {
             engine = MonoGame.Framework.XamlGame<Engine>.Create(string.Empty, Window.Current.CoreWindow, monogameRenderTarget);
             try
             {
                 engine.SetNewHighscore(Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]));
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 // no highscore set yet..
             }
             engine.OnDraw = state =>
             {
-                if(state.score != this.state.score || state.highscore != this.state.highscore)
+                if (state.score != this.state.score || state.highscore != this.state.highscore)
                 {
                     var _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
                     {
                         score.Text = $"{state.score}";
                         highscore.Text = $"{state.highscore}";
                     }));
-                    if(state.highscore != this.state.highscore)
+                    if (state.highscore != this.state.highscore)
                     {
                         ApplicationData.Current.RoamingSettings.Values["HighPriority"] = state.highscore;
                     }
                     this.state = state;
                 }
             };
-
-            ApplicationData.Current.DataChanged += Current_DataChanged;
         }
 
         private void Current_DataChanged(ApplicationData sender, object args)

@@ -43,3 +43,9 @@
 /processorParam:Quality=Best
 /build:new Highscore.wav
 
+#begin Album/01.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Album/01.mp3
+

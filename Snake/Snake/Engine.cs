@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,12 @@ namespace Snake
         SoundEffect dyingSnake;
         SoundEffect newHighscore;
 
+        Song album01;
+
         Random random;
 
-        List<(Vector2 position, Vector2 direction, float age, Color color)> particles;
+        List<(Vector2 position, Vector2 direction, float age, Color color)> foregroundParticles;
+        List<(Vector2 position, Vector2 direction, float age, Color color)> backgroundParticles;
 
         Game game;
         State state;
@@ -28,6 +32,8 @@ namespace Snake
         double timestamp;
         double milliseconds;
         double rate = 1000 / 15;
+
+        double shake;
 
         Input bufferedInput = Input.None;
 
@@ -38,13 +44,15 @@ namespace Snake
             graphics = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = Window.ClientBounds.Width,
-                PreferredBackBufferHeight = Window.ClientBounds.Height
+                PreferredBackBufferHeight = Window.ClientBounds.Height,
+                IsFullScreen = true
             };
             IsMouseVisible = false;
             Content.RootDirectory = "Content";
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
 
-            particles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
+            foregroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
+            backgroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
 
             random = new Random();
 
@@ -58,6 +66,38 @@ namespace Snake
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
         }
 
+        private void AddGlitter(int times, float chance = 1f, Vector2? position = null, bool explode = false)
+        {
+            if (random.NextDouble() < chance)
+            {
+                var p = position ?? Vector2.Zero;
+                p += new Vector2(8, 8);
+                for (var i = 0; i < times; i++)
+                {
+                    var f = (p: explode ? 1f : 10f, s: explode ? 10f : 1f);
+                    foregroundParticles.Add((p + f.p * RandomDirection(0f, 1.3f), f.s * RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 1.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    foregroundParticles.Add((p + f.p * RandomDirection(0f, 1.1f), f.s * RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    foregroundParticles.Add((p + f.p * RandomDirection(0f, .9f), f.s * RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    foregroundParticles.Add((p + f.p * RandomDirection(0f, .7f), f.s * RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                }
+            }
+        }
+
+        private void AddBackgroundParticlesAsNeeded()
+        {
+            while(backgroundParticles.Count < 140)
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    var p = RandomDirection(0f, 1f);
+                    backgroundParticles.Add((p + RandomDirection(0f, 1.3f), 0.1f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.35f + 3.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    backgroundParticles.Add((p + RandomDirection(0f, 1.1f), 0.4f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.45f + 2.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    backgroundParticles.Add((p + RandomDirection(0f, .9f), 0.7f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.65f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    backgroundParticles.Add((p + RandomDirection(0f, .7f), 1f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                }
+            }
+        }
+
         protected override void LoadContent()
         {
             base.LoadContent();
@@ -65,6 +105,17 @@ namespace Snake
             eatingApple = Content.Load<SoundEffect>("eating Apple");
             dyingSnake = Content.Load<SoundEffect>("dying Snake");
             newHighscore = Content.Load<SoundEffect>("new Highscore");
+
+            album01 = Content.Load<Song>("Album/01");
+
+
+            MediaPlayer.Play(album01);
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = .5f;
+
+            AddGlitter(150);
+
+            AddBackgroundParticlesAsNeeded();
 
             game.OnMoment = moment =>
             {
@@ -75,29 +126,31 @@ namespace Snake
                         var a = new Vector2(state.apple.position.X, state.apple.position.Y);
                         for (var i = 0; i < 25; i++)
                         {
-                            particles.Add((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0)));
-                            particles.Add((a + RandomDirection(0f, .7f), RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 0.45f, new Color(random.Next(140, 256), 0, 0)));
-                            particles.Add((a + RandomDirection(0f, .5f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.45f, new Color(random.Next(170, 256), 150, 0)));
-                            particles.Add((a + RandomDirection(0f, .3f), RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(150, 256), 0, 0)));
+                            foregroundParticles.Add((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0)));
+                            foregroundParticles.Add((a + RandomDirection(0f, .7f), RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 0.45f, new Color(random.Next(140, 256), 0, 0)));
+                            foregroundParticles.Add((a + RandomDirection(0f, .5f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.45f, new Color(random.Next(170, 256), 150, 0)));
+                            foregroundParticles.Add((a + RandomDirection(0f, .3f), RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(150, 256), 0, 0)));
                         }
                         break;
 
                     case Moment.Dying:
                         dyingSnake.Play();
+                        shake = 1f;
                         foreach(var p in state.snake.links.Select(l => new Vector2(l.X, l.Y)))
                         {
                             for (var i = 0; i < 25; i++)
                             {
-                                particles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.75f + 0.45f, new Color(0, random.Next(50, 100), 0)));
-                                particles.Add((p + RandomDirection(.25f, .35f), RandomDirection() * 0.3f, (float)random.NextDouble() * 0.85f + 0.45f, new Color(0, random.Next(50, 100), 0)));
-                                particles.Add((p + RandomDirection(0f, .45f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.95f + 0.35f, new Color(random.Next(100, 150), 120, 20)));
+                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.75f + 0.45f, new Color(0, random.Next(50, 100), 0)));
+                                foregroundParticles.Add((p + RandomDirection(.25f, .35f), RandomDirection() * 0.3f, (float)random.NextDouble() * 0.85f + 0.45f, new Color(0, random.Next(50, 100), 0)));
+                                foregroundParticles.Add((p + RandomDirection(0f, .45f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.95f + 0.35f, new Color(random.Next(100, 150), 120, 20)));
                             }
                             for (var i = 0; i < 2; i++)
                             {
                                 if (random.Next(0, 10) > 6)
                                 {
-                                    particles.Add((p + RandomDirection(0f, .35f), RandomDirection() * 0f, (float)random.NextDouble() * 1.75f + 0.45f, new Color(255, 0, 0)));
-                                }                            }
+                                    foregroundParticles.Add((p + RandomDirection(0f, .35f), RandomDirection() * 0f, (float)random.NextDouble() * 1.75f + 0.45f, new Color(255, 0, 0)));
+                                }
+                            }
                         }
                         break;
 
@@ -107,7 +160,7 @@ namespace Snake
                         {
                             for (var i = 0; i < 10; i++)
                             {
-                                particles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.65f + 0.15f, new Color(random.Next(100, 250), random.Next(100, 250), random.Next(100, 250))));
+                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.65f + 0.15f, new Color(random.Next(100, 250), random.Next(100, 250), random.Next(100, 250))));
                             }
                         }
                         break;
@@ -117,7 +170,7 @@ namespace Snake
                         {
                             if(random.Next(0, 10) > 8)
                             {
-                                particles.Add((p + RandomDirection(.5f, .5f), RandomDirection() * .05f, (float)random.NextDouble() * .85f + 0.35f, new Color(random.Next(0, 100), random.Next(50, 250), random.Next(0, 25))));
+                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection() * .05f, (float)random.NextDouble() * .85f + 0.35f, new Color(random.Next(0, 100), random.Next(50, 250), random.Next(0, 25))));
                             }
                         }
                         break;
@@ -170,6 +223,8 @@ namespace Snake
 
                 state = game.Update(state, input);
 
+                //AddGlitter(random.Next(2, 5), chance: .02f, position: RandomDirection() * 5, explode: true);
+
                 if(keyboard.IsKeyDown(Keys.H))
                 {
                     state.highscore = 0;
@@ -180,7 +235,7 @@ namespace Snake
 
             bufferedInput = input;
 
-            particles = particles
+            foregroundParticles = foregroundParticles
             .Select(p => (
                 position: p.position + p.direction * (float)gameTime.ElapsedGameTime.TotalSeconds,
                 direction: p.direction + RandomDirection() * 0.1f,
@@ -190,13 +245,31 @@ namespace Snake
             .Where(p => p.age > 0)
             .ToList();
 
+            backgroundParticles = backgroundParticles
+            .Select(p => (
+                position: p.position + p.direction * (float)gameTime.ElapsedGameTime.TotalSeconds,
+                direction: p.direction + RandomDirection() * p.direction.Length() * 0.1f,
+                age: p.age - (float)gameTime.ElapsedGameTime.TotalSeconds,
+                color: p.color
+            ))
+            .Where(p => p.age > 0)
+            .ToList();
+
+            AddBackgroundParticlesAsNeeded();
+
+            shake /= 2;
+            if(shake < 0.001f)
+            {
+                shake = 0;
+            }
+
             timestamp = gameTime.TotalGameTime.TotalSeconds;
 
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            graphics.GraphicsDevice.Clear(Color.DarkViolet);
+            graphics.GraphicsDevice.Clear(Color.DarkSlateBlue);
 
             var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
 
@@ -209,6 +282,13 @@ namespace Snake
                 basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
             }
 
+            var _shake = Math.Pow(shake, 0.125f);
+            basicEffect.View = Matrix.CreateTranslation(
+                0.02f * (float)(_shake * Math.Sin(timestamp * 74.1)),
+                0.02f * (float)(_shake * Math.Sin((timestamp + 23532) * 47.2)),
+                0
+            );
+
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
             basicEffect.VertexColorEnabled = true;
@@ -219,7 +299,12 @@ namespace Snake
 
             basicEffect.World = Matrix.Identity;
             basicEffect.CurrentTechnique.Passes.First().Apply();
-            DrawSquare(0, 0, 2, Color.Black, 0.001f);
+
+            foreach (var p in backgroundParticles)
+            {
+                DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f);
+            }
+            DrawSquare(0, 0, 2, Color.Black, 0);
 
             basicEffect.World = Matrix.CreateTranslation(-7.5f, -7.5f, 0) * Matrix.CreateScale(1f / 8);
             basicEffect.CurrentTechnique.Passes.First().Apply();
@@ -251,9 +336,9 @@ namespace Snake
                     }
                 }
             }
-            foreach(var p in particles)
+            foreach(var p in foregroundParticles)
             {
-                DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f);
+                DrawSquare(p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f);
             }
             base.Draw(gameTime);
             OnDraw(state);
