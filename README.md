@@ -1,6 +1,8 @@
 # snake
 simple monogame uwp snake game
 
+[![snake gameplay](https://img.youtube.com/vi/WtY0uuhwXoA/0.jpg)](https://www.youtube.com/watch?v=WtY0uuhwXoA)
+
 ## features
 - runs on Windows 10 PCs & XBox One
 - supports keyboard & controller
