@@ -23,17 +23,7 @@ namespace Snake
             titleBar.ExtendViewIntoTitleBar = true;
             ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
 
-            Action intro = async () =>
-            {
-                await Task.Delay(5000);
-                scene0.Visibility = Visibility.Collapsed;
-                scene1.Visibility = Visibility.Visible;
-                await Task.Delay(1000);
-                scene1.Visibility = Visibility.Collapsed;
-                scene2.Visibility = Visibility.Visible;
-                StartGame();
-            };
-            intro();
+            StartGame();
 
             ApplicationData.Current.DataChanged += Current_DataChanged;
         }

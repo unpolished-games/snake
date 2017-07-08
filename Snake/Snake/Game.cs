@@ -140,11 +140,11 @@ namespace Snake
                 OnMoment?.Invoke(Moment.EatingApple);
                 var score = state.score + 1;
 
-                if(score > state.highscore)
+                if (score > state.highscore)
                 {
                     OnMoment?.Invoke(Moment.NewHighscore);
                 }
-                
+
                 var highscore = score > state.highscore ? score : state.highscore;
                 return new State
                 {
@@ -154,7 +154,7 @@ namespace Snake
                     highscore = highscore
                 };
             }
-            else if(moving)
+            else if (moving)
             {
 
                 OnMoment?.Invoke(Moment.Moving);
@@ -165,7 +165,8 @@ namespace Snake
                     score = state.score,
                     highscore = state.highscore
                 };
-            } else
+            }
+            else
             {
                 return state;
             }

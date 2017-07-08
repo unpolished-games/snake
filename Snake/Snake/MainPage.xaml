@@ -10,32 +10,23 @@
     DoubleTapped="Page_DoubleTapped"
     mc:Ignorable="d">
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Viewbox x:Name="scene0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock Margin="500">unpolished games presents</TextBlock>
-        </Viewbox>
-        <Viewbox x:Name="scene1" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock Margin="100">SNAKE</TextBlock>
-        </Viewbox>
-        <Grid x:Name="scene2" Visibility="Collapsed">
-            <SwapChainPanel x:Name="monogameRenderTarget"/>
+        <SwapChainPanel x:Name="monogameRenderTarget"/>
 
-            <TextBlock Padding="20 40" HorizontalAlignment="Left" VerticalAlignment="Top">Snake</TextBlock>
+        <TextBlock Padding="20 40" HorizontalAlignment="Left" VerticalAlignment="Top">Snake</TextBlock>
 
-            <Grid Padding="20 40" HorizontalAlignment="Right" VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition MinWidth="100"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Grid.Column="0" Foreground="Gray">Score</TextBlock>
-                <TextBlock Grid.Row="0" Grid.Column="1" TextAlignment="Right" x:Name="score">0</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="0" Foreground="Gray">Highscore</TextBlock>
-                <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Right" x:Name="highscore">0</TextBlock>
-            </Grid>
-
+        <Grid Padding="20 40" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition MinWidth="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Foreground="Gray">Score</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" TextAlignment="Right" x:Name="score">0</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="0" Foreground="Gray">Highscore</TextBlock>
+            <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Right" x:Name="highscore">0</TextBlock>
         </Grid>
     </Grid>
 </Page>
