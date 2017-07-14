@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Snake
 {
@@ -9,7 +11,8 @@ namespace Snake
         GraphicsDeviceManager graphics;
         BasicEffect basicEffect;
 
-        Scenes.Level level;
+        Scenes.Scene current;
+        Scenes.Scene[] scenes;
 
         public Engine()
         {
@@ -23,8 +26,22 @@ namespace Snake
             Content.RootDirectory = "Content";
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
 
-            level = new Scenes.Level();
-            level.OnDraw = state => this.OnDraw?.Invoke(state);
+            scenes = new Scenes.Scene[]
+            {
+                new Scenes.SplashScreen(),
+                new Scenes.TitleScreen(),
+                new Scenes.Level()
+            };
+
+            async Task storyBook()
+            {
+                current = scenes[0];
+                await Task.Delay(3775);
+                current = scenes[1];
+                await Task.Delay(3775);
+                current = scenes[2];
+            }
+            var _ = storyBook();
         }
 
         protected override void Initialize()
@@ -36,10 +53,15 @@ namespace Snake
         protected override void LoadContent()
         {
             base.LoadContent();
-            level.LoadContent(Content);
+            foreach(var scene in scenes)
+            {
+                scene.LoadContent(Content);
+
+                scene.OnDraw = state => this.OnDraw?.Invoke(state);
+            }
         }
 
-        internal void SetNewHighscore(int highscore) => level.SetNewHighscore(highscore);
+        internal void SetNewHighscore(int highscore) => scenes.OfType<Scenes.Level>().First().SetNewHighscore(highscore);
 
         public Action<State> OnDraw { get; internal set; }
 
@@ -56,12 +78,12 @@ namespace Snake
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            level.Update(gameTime);
+            current.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            level.Draw(graphics, basicEffect, gameTime);
+            current.Draw(graphics, basicEffect, gameTime);
         }
     }
 }

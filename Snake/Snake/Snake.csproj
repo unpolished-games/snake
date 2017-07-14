@@ -111,20 +111,29 @@
     </Compile>
     <Compile Include="Scenes\Level.cs" />
     <Compile Include="Scenes\Scene.cs" />
+    <Compile Include="Scenes\TitleScreen.cs" />
+    <Compile Include="Scenes\SplashScreen.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="Assets\for Deployment\tile concept.pdn" />
+    <None Include="Assets\for Deployment\title concept.pdn" />
     <None Include="Assets\for the Game\glow.pdn" />
     <None Include="Assets\for the Game\glowing Tile.pdn" />
+    <None Include="Assets\for the Game\title screen.pdn" />
+    <None Include="Assets\for the Game\splash screen.pdn" />
     <None Include="Snake_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\for Deployment\screenshot for tile.png" />
+    <Content Include="Assets\for Deployment\tile concept.png" />
     <Content Include="Assets\for the Game\253619__xtrgamr__potato-chip-crunch-2.wav" />
     <Content Include="Assets\for the Game\381772__stumpbutt__retro-1up-3-sfx.wav" />
     <Content Include="Assets\for the Game\387433__blosche__video-game-die.wav" />
+    <Content Include="Assets\for the Game\splash screen.png" />
+    <Content Include="Assets\for the Game\title screen.png" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-100.png" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-125.png" />
     <Content Include="Assets\Logos &amp; Tiles\LargeTile.scale-150.png" />

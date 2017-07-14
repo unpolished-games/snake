@@ -7,7 +7,7 @@ namespace Snake.Scenes
 {
     internal interface Scene
     {
-        Action<State> OnDraw { get; }
+        Action<State> OnDraw { get; set; }
 
         void Draw(GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime);
         void LoadContent(ContentManager content);

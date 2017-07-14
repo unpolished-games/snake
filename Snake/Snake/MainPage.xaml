@@ -12,9 +12,9 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <SwapChainPanel x:Name="monogameRenderTarget"/>
 
-        <TextBlock Padding="20 40" HorizontalAlignment="Left" VerticalAlignment="Top">Snake</TextBlock>
+        <TextBlock Padding="20 40" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">Snake</TextBlock>
 
-        <Grid Padding="20 40" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Grid Padding="20 40" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>

@@ -39,7 +39,7 @@ namespace Snake.Scenes
 
         Input bufferedInput = Input.None;
 
-        public Action<State> OnDraw { get; internal set; }
+        public Action<State> OnDraw { get; set; }
 
         public Level()
         {
