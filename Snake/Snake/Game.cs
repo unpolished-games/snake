@@ -60,10 +60,12 @@ namespace Snake
         {
             if (key != Input.None)
             {
-                return new Vector2(
+                var nextSpeed = new Vector2(
                     (key == Input.Right ? 1 : 0) - (key == Input.Left ? 1 : 0),
                     (key == Input.Down ? 1 : 0) - (key == Input.Up ? 1 : 0)
                 );
+                // prevent 180° turns
+                return nextSpeed != -speed ? nextSpeed : speed;
             }
             else
             {
