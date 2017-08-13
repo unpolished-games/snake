@@ -28,8 +28,8 @@ namespace Snake.Scenes
         Game game;
         State state;
 
-        Vector2? mouseStartPosition;
-        Vector2? touchStartPosition;
+        List<Vector2> mousePositions;
+        List<Vector2> touchPositions;
 
         double timestamp;
         double milliseconds;
@@ -45,6 +45,9 @@ namespace Snake.Scenes
         {
             foregroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
             backgroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
+
+            mousePositions = new List<Vector2>();
+            touchPositions = new List<Vector2>();
 
             random = new Random();
 
@@ -197,54 +200,62 @@ namespace Snake.Scenes
             var mouse = Mouse.GetState();
             if (mouse.LeftButton == ButtonState.Released)
             {
-                mouseStartPosition = null;
+                mousePositions.Clear();
             }
             if (mouse.LeftButton == ButtonState.Pressed)
             {
                 var position = new Vector2(mouse.X, mouse.Y);
-                mouseStartPosition = mouseStartPosition ?? position;
+                mousePositions.Add(position);
+                mousePositions.Reverse();
+                mousePositions = mousePositions.Take(10).ToList();
+                mousePositions.Reverse();
 
-                var direction = position - mouseStartPosition.Value;
-                mouseStartPosition = direction.Length() > 8 ? position : mouseStartPosition;
-
-                var normalizedDirection = Vector2.Normalize(direction);
-
-                var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
-                var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
-
-                input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight > 0 ? Input.Left : input;
-                input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight < 0 ? Input.Right : input;
-                input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown > 0 ? Input.Up : input;
-                input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown < 0 ? Input.Down : input;
+                if(mousePositions.Count == 10)
+                {
+                    var direction = position - mousePositions.First();
+                    var normalizedDirection = Vector2.Normalize(direction);
+                    var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
+                    var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
+                    input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight > 0 ? Input.Left : input;
+                    input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight < 0 ? Input.Right : input;
+                    input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown > 0 ? Input.Up : input;
+                    input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown < 0 ? Input.Down : input;
+                }
             }
 
             var touchpanel = TouchPanel.GetState();
-            if(touchpanel.Any())
+            if (touchpanel.Any())
             {
                 var touch = touchpanel.First();
 
                 var position = touch.Position;
-                touchStartPosition = touchStartPosition ?? position;
+                touchPositions.Add(position);
+                touchPositions.Reverse();
+                touchPositions = touchPositions.Take(20).ToList();
+                touchPositions.Reverse();
 
-                var direction = position - touchStartPosition.Value;
-                touchStartPosition = direction.Length() > 8 ? position : touchStartPosition;
-
-                var normalizedDirection = Vector2.Normalize(direction);
-
-                var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
-                var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
-
-                var cosineOf22dot5Degrees = 0.92387953251128675612818318939679f;
+                if(touchPositions.Count == 20)
                 {
-                    input = leftRight > cosineOf22dot5Degrees ? Input.Left : input;
-                    input = leftRight < -cosineOf22dot5Degrees ? Input.Right : input;
-                    input = upDown > cosineOf22dot5Degrees ? Input.Up : input;
-                    input = upDown < -cosineOf22dot5Degrees ? Input.Down : input;
+                    var direction = position - touchPositions.First();
+                    var normalizedDirection = Vector2.Normalize(direction);
+                    var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
+                    var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
+                    var cosineOf22dot5Degrees = 0.92387953251128675612818318939679f;
+                    var touchInput = Input.None;
+                    touchInput = leftRight > cosineOf22dot5Degrees ? Input.Left : touchInput;
+                    touchInput = leftRight < -cosineOf22dot5Degrees ? Input.Right : touchInput;
+                    touchInput = upDown > cosineOf22dot5Degrees ? Input.Up : touchInput;
+                    touchInput = upDown < -cosineOf22dot5Degrees ? Input.Down : touchInput;
+                    if(touchInput != Input.None)
+                    {
+                        input = touchInput;
+                        touchPositions.Clear();
+                    }
                 }
             }
             else
             {
-                touchStartPosition = null;
+                touchPositions.Clear();
             }
 
             milliseconds += gameTime.ElapsedGameTime.TotalMilliseconds;
