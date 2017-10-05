@@ -1,39 +1,43 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Linq;
 
 namespace Snake.Scenes
 {
     internal class TitleScreen : Scene
     {
-        Texture2D titleScreen;
-        SpriteBatch spriteBatch;
 
-        public Action<State> OnDraw { get; set; }
-
-        public void Draw(GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime)
+        public TitleScreen(IScenes scenes)
         {
-            spriteBatch = spriteBatch ?? new SpriteBatch(graphics.GraphicsDevice);
+            Texture2D titleScreen = null;
+            SpriteBatch spriteBatch = null;
 
-            var screen = new Vector2(graphics.GraphicsDevice.Viewport.Bounds.Width, graphics.GraphicsDevice.Viewport.Bounds.Height);
+            LoadContent = content =>
+            {
+                titleScreen = content.Load<Texture2D>("title screen");
+            };
 
-            var texture = new Vector2(titleScreen.Width, titleScreen.Height);
+            Update = (runtime, delta) =>
+            {
+                if (runtime > TimeSpan.FromSeconds(3))
+                {
+                    this.End();
+                    scenes.Level.Begin();
+                }
+            };
 
-            graphics.GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Begin();
-            spriteBatch.Draw(titleScreen, (screen - texture) / 2, Color.White);
-            spriteBatch.End();
-        }
+            Draw = (graphics, basicEffect, gameTime) =>
+            {
+                spriteBatch = spriteBatch ?? new SpriteBatch(graphics.GraphicsDevice);
 
-        public void LoadContent(ContentManager content)
-        {
-            titleScreen = content.Load<Texture2D>("title screen");
-        }
+                var screen = new Vector2(graphics.GraphicsDevice.Viewport.Bounds.Width, graphics.GraphicsDevice.Viewport.Bounds.Height);
 
-        public void Update(GameTime gameTime)
-        {
+                var texture = new Vector2(titleScreen.Width, titleScreen.Height);
+
+                spriteBatch.Begin();
+                spriteBatch.Draw(titleScreen, (screen - texture) / 2, Color.White);
+                spriteBatch.End();
+            };
         }
     }
 }

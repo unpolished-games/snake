@@ -1,21 +1,34 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Snake
 {
-    internal class Engine : Microsoft.Xna.Framework.Game
+    interface IScenes
+    {
+        Scenes.Scene SplashScreen { get; }
+        Scenes.Scene TitleScreen { get; }
+        Scenes.Scene Level { get; }
+    }
+
+    internal class Engine: Microsoft.Xna.Framework.Game, IScenes
     {
         GraphicsDeviceManager graphics;
         BasicEffect basicEffect;
 
-        Scenes.Scene current;
-        Scenes.Scene[] scenes;
+        public Scenes.Scene SplashScreen { get; }
+        public Scenes.Scene TitleScreen { get; }
+        public Scenes.Scene Level { get; }
 
         public Engine()
         {
+            SplashScreen = new Scenes.SplashScreen(this);
+            TitleScreen = new Scenes.TitleScreen(this);
+            Level = new Scenes.Level(this);
+
             graphics = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = Window.ClientBounds.Width,
@@ -25,43 +38,45 @@ namespace Snake
             IsMouseVisible = false;
             Content.RootDirectory = "Content";
             this.Window.ClientSizeChanged += Window_ClientSizeChanged;
-
-            scenes = new Scenes.Scene[]
-            {
-                new Scenes.SplashScreen(),
-                new Scenes.TitleScreen(),
-                new Scenes.Level()
-            };
-
-            async Task storyBook()
-            {
-                current = scenes[0];
-                await Task.Delay(3775);
-                current = scenes[1];
-                await Task.Delay(3775);
-                current = scenes[2];
-            }
-            var _ = storyBook();
         }
 
         protected override void Initialize()
         {
             base.Initialize();
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
+
+            SplashScreen.Begin();
         }
+
+        private Scenes.Scene[] allScenes;
+        private IEnumerable<Scenes.Scene> AllScenes
+        {
+            get
+            {
+                if (allScenes == null)
+                {
+                    var properties = typeof(IScenes).GetTypeInfo().DeclaredProperties;
+                    var values = properties.Select(p => p.GetValue(this));
+                    allScenes = values.Cast<Scenes.Scene>().ToArray();
+                }
+                return allScenes;
+            }
+        }
+        private IEnumerable<Scenes.Scene> ActiveScenes => AllScenes.Where(s => s.Active);
 
         protected override void LoadContent()
         {
             base.LoadContent();
-            foreach(var scene in scenes)
-            {
-                scene.LoadContent(Content);
 
-                scene.OnDraw = state => this.OnDraw?.Invoke(state);
+            foreach(var scene in AllScenes)
+            {
+                scene._LoadContent(Content);
             }
+
+            Level.OnDraw = state => this.OnDraw?.Invoke(state);
         }
 
-        internal void SetNewHighscore(int highscore) => scenes.OfType<Scenes.Level>().First().SetNewHighscore(highscore);
+        internal void SetNewHighscore(int highscore) => (Level as Scenes.Level).SetNewHighscore(highscore);
 
         public Action<State> OnDraw { get; internal set; }
 
@@ -78,12 +93,19 @@ namespace Snake
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            current.Update(gameTime);
+            foreach(var scenes in ActiveScenes)
+            {
+                scenes._Update(gameTime);
+            }
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            current.Draw(graphics, basicEffect, gameTime);
+            graphics.GraphicsDevice.Clear(Color.Black);
+            foreach(var scene in ActiveScenes)
+            {
+                scene._Draw(graphics, basicEffect, gameTime);
+            }
         }
     }
 }
