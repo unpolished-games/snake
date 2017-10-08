@@ -12,14 +12,12 @@ namespace Snake.Scenes
 
         public SplashScreen(IScenes scenes)
         {
-            Texture2D splashScreen = null;
-            SpriteBatch spriteBatch = null;
             Texture2D glowingTile = null;
             PixelFont pixelFont = null;
+            float delayForWindowsRecordings = 5;
 
             LoadContent = content =>
             {
-                splashScreen = content.Load<Texture2D>("splash screen");
                 glowingTile = content.Load<Texture2D>("glowing Tile");
                 pixelFont = new PixelFont();
             };
@@ -27,7 +25,7 @@ namespace Snake.Scenes
             Update = (runtime, delta) =>
             {
                 _runtime = runtime;
-                if (runtime > TimeSpan.FromSeconds(5) || Keyboard.GetState().IsKeyDown(Keys.Space))
+                if (runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings) || Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
                     this.End();
                     scenes.TitleScreen.Begin();
@@ -36,16 +34,6 @@ namespace Snake.Scenes
 
             Draw = (graphics, basicEffect, gameTime) =>
             {
-                //spriteBatch = spriteBatch ?? new SpriteBatch(graphics.GraphicsDevice);
-
-                //var screen = new Vector2(graphics.GraphicsDevice.Viewport.Bounds.Width, graphics.GraphicsDevice.Viewport.Bounds.Height);
-
-                //var texture = new Vector2(splashScreen.Width, splashScreen.Height);
-
-                //spriteBatch.Begin();
-                //spriteBatch.Draw(splashScreen, (screen - texture) / 2, Color.White);
-                //spriteBatch.End();
-
                 var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
 
                 if (size.height < size.width)
@@ -71,11 +59,11 @@ namespace Snake.Scenes
                 var message = "unpolished games presents...";
 
                 basicEffect.World =
-                    Matrix.CreateTranslation(-pixelFont.Width * message.Length / 2f, -pixelFont.Height / 2f, 0)
+                    Matrix.CreateTranslation(-((pixelFont.Width + 1) * message.Length - 1) / 2f + .5f, -pixelFont.Height / 2f + .5f, 0)
                     * Matrix.CreateScale(1f / 64f);
                 basicEffect.CurrentTechnique.Passes.First().Apply();
 
-                var seconds = (float)_runtime.TotalSeconds;
+                var seconds = (float)_runtime.TotalSeconds - delayForWindowsRecordings;
 
                 pixelFont.DrawString(message, (x, y) =>
                 {

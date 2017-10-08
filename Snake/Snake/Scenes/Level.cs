@@ -67,6 +67,10 @@ namespace Snake.Scenes
             Update = (runtime, delta) =>
             {
                 var keyboard = Keyboard.GetState();
+                if(keyboard.IsKeyDown(Keys.Escape))
+                {
+                    this.End();
+                }
                 var input = bufferedInput;
                 input = keyboard.IsKeyDown(Keys.Left) ? Input.Left : input;
                 input = keyboard.IsKeyDown(Keys.Right) ? Input.Right : input;

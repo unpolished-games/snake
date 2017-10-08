@@ -91,6 +91,10 @@ namespace Snake
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            if(ActiveScenes.Count() == 0)
+            {
+                Exit();
+            }
             foreach(var scenes in ActiveScenes)
             {
                 scenes._Update(gameTime);
