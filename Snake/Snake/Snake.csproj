@@ -123,6 +123,7 @@
     </Compile>
     <Compile Include="Engine.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="PixelFont.cs" />
     <Compile Include="Scenes\Level.cs" />
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Scenes\SplashScreen.cs" />

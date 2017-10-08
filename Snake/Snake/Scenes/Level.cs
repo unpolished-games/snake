@@ -14,11 +14,15 @@ namespace Snake.Scenes
         IScenes scenes;
         Texture2D glowingTile;
 
+        (
+            Texture2D highscore,
+            Texture2D score,
+            Texture2D[] digits
+        ) ui;
+
         SoundEffect eatingApple;
         SoundEffect dyingSnake;
         SoundEffect newHighscore;
-
-        SoundEffect album01;
 
         Random random;
 
@@ -38,8 +42,6 @@ namespace Snake.Scenes
         double shake;
 
         Input bufferedInput = Input.None;
-
-        public new Action<State> OnDraw { get; set; }
 
         public Level(IScenes scenes)
         {
@@ -63,12 +65,11 @@ namespace Snake.Scenes
                 dyingSnake = content.Load<SoundEffect>("dying Snake");
                 newHighscore = content.Load<SoundEffect>("new Highscore");
 
-                //album01 = content.Load<SoundEffect>("Album/01");
-
-                //var player = album01.CreateInstance();
-                //player.IsLooped = true;
-                //player.Volume = .25f;
-                //player.Play();
+                ui = (
+                    highscore: content.Load<Texture2D>("ui/highscore"),
+                    score: null,
+                    digits: null
+                );
             };
 
             Update = (runtime, delta) =>
@@ -270,7 +271,6 @@ namespace Snake.Scenes
                 {
                     DrawSquare(graphics.GraphicsDevice, p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f);
                 }
-                OnDraw?.Invoke(state);
             };
         }
 

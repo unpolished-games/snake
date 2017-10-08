@@ -72,8 +72,6 @@ namespace Snake
             {
                 scene._LoadContent(Content);
             }
-
-            Level.OnDraw = state => this.OnDraw?.Invoke(state);
         }
 
         internal void SetNewHighscore(int highscore) => (Level as Scenes.Level).SetNewHighscore(highscore);

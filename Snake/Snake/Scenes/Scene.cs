@@ -7,8 +7,6 @@ namespace Snake.Scenes
 {
     internal abstract class Scene
     {
-        public Action<State> OnDraw { get; set; }
-
         private bool active = false;
         public bool Active => active;
 
@@ -28,15 +26,15 @@ namespace Snake.Scenes
         protected Action<ContentManager> LoadContent { private get; set; }
         protected Action<TimeSpan, TimeSpan> Update { private get; set; }
 
-        public virtual void _Draw(GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime)
+        public void _Draw(GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime)
         {
             Draw(graphics, basicEffect, gameTime);
         }
-        public virtual void _LoadContent(ContentManager content)
+        public void _LoadContent(ContentManager content)
         {
             LoadContent(content);
         }
-        public virtual void _Update(GameTime gameTime)
+        public void _Update(GameTime gameTime)
         {
             runtime += gameTime.ElapsedGameTime;
             Update(runtime, gameTime.ElapsedGameTime);
