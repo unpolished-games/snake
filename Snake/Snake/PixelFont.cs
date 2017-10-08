@@ -10,6 +10,9 @@ namespace Snake
         int width = 5;
         int height = 5;
 
+        public int Width => width;
+        public int Height => height;
+
         Dictionary<char, byte[]> characters = new Dictionary<char, byte[]>();
 
         public PixelFont()
