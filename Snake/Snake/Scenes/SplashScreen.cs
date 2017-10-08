@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 
 namespace Snake.Scenes
@@ -18,7 +19,7 @@ namespace Snake.Scenes
 
             Update = (runtime, delta) =>
             {
-                if (runtime > TimeSpan.FromSeconds(3))
+                if (runtime > TimeSpan.FromSeconds(3) || Keyboard.GetState().GetPressedKeys().Length > 0)
                 {
                     this.End();
                     scenes.TitleScreen.Begin();

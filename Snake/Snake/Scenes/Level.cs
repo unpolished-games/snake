@@ -14,11 +14,7 @@ namespace Snake.Scenes
         IScenes scenes;
         Texture2D glowingTile;
 
-        (
-            Texture2D highscore,
-            Texture2D score,
-            Texture2D[] digits
-        ) ui;
+        PixelFont pixelFont;
 
         SoundEffect eatingApple;
         SoundEffect dyingSnake;
@@ -65,11 +61,7 @@ namespace Snake.Scenes
                 dyingSnake = content.Load<SoundEffect>("dying Snake");
                 newHighscore = content.Load<SoundEffect>("new Highscore");
 
-                ui = (
-                    highscore: content.Load<Texture2D>("ui/highscore"),
-                    score: null,
-                    digits: null
-                );
+                pixelFont = new PixelFont();
             };
 
             Update = (runtime, delta) =>
@@ -271,6 +263,12 @@ namespace Snake.Scenes
                 {
                     DrawSquare(graphics.GraphicsDevice, p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f);
                 }
+
+                pixelFont.DrawString($"                    Highscore\n{state.score}\n{state.highscore}", (x, y) =>
+                {
+                    var scale = 1 / 8f;
+                    DrawSquare(graphics.GraphicsDevice, x * scale, y * scale, scale, Color.White, 0.1f);
+                }, rightAlign: true);
             };
         }
 
