@@ -12,8 +12,8 @@
     <AssemblyName>Snake</AssemblyName>
     <DefaultLanguage>de-DE</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.15063.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.15063.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.16299.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>15</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
@@ -128,23 +128,14 @@
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Scenes\SplashScreen.cs" />
     <Compile Include="Scenes\TitleScreen.cs" />
-    <None Include="Assets\for Deployment\font for HUD.pdn" />
-    <None Include="Assets\for Deployment\highscore.pdn" />
-    <None Include="Assets\for Deployment\highscore.png" />
     <None Include="Assets\for Deployment\screenshot for tile.png" />
     <None Include="Assets\for Deployment\tile concept.pdn" />
     <None Include="Assets\for Deployment\tile concept.png" />
-    <None Include="Assets\for Deployment\title concept.pdn" />
-    <None Include="Assets\for Deployment\title concept.png" />
     <None Include="Assets\for the Game\253619__xtrgamr__potato-chip-crunch-2.wav" />
     <None Include="Assets\for the Game\381772__stumpbutt__retro-1up-3-sfx.wav" />
     <None Include="Assets\for the Game\387433__blosche__video-game-die.wav" />
     <None Include="Assets\for the Game\glow.pdn" />
     <None Include="Assets\for the Game\glowing Tile.pdn" />
-    <None Include="Assets\for the Game\splash screen.pdn" />
-    <None Include="Assets\for the Game\splash screen.png" />
-    <None Include="Assets\for the Game\title screen.pdn" />
-    <None Include="Assets\for the Game\title screen.png" />
     <None Include="Assets\Logos &amp; Tiles\LargeTile.scale-100.png" />
     <None Include="Assets\Logos &amp; Tiles\LargeTile.scale-125.png" />
     <None Include="Assets\Logos &amp; Tiles\LargeTile.scale-150.png" />
