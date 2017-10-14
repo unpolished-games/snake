@@ -91,11 +91,11 @@ namespace Snake
             };
         }
 
-        bool IsEatingApple(Vector2 position, Apple apple) => position == apple.position;
+        bool IsEatingApple(Vector2 position, Apple apple) => Vector2.DistanceSquared(position, apple.position) < .5f;
 
         bool BitesHimself(Snake snake)
         {
-            return IsMoving(snake.speed) && snake.links.Any(link => link == snake.position);
+            return IsMoving(snake.speed) && snake.links.Any(link => Vector2.DistanceSquared(link, snake.position) < .5f);
         }
 
         Snake NextTail(Snake snake, bool isGrowing)

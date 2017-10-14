@@ -100,10 +100,10 @@
       <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\WindowsUniversal\MonoGame.Framework.dll</HintPath>
     </Reference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>5.3.3</Version>
+      <Version>6.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.ValueTuple">
-      <Version>4.4.0-preview2-25405-01</Version>
+      <Version>4.4.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +115,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="BackgroundParticles.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -123,6 +124,7 @@
     </Compile>
     <Compile Include="Engine.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="Particles.cs" />
     <Compile Include="PixelFont.cs" />
     <Compile Include="Scenes\Level.cs" />
     <Compile Include="Scenes\Scene.cs" />

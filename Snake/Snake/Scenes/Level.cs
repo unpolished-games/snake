@@ -22,13 +22,12 @@ namespace Snake.Scenes
 
         Random random;
 
-        List<(Vector2 position, Vector2 direction, float age, Color color)> foregroundParticles;
-        List<(Vector2 position, Vector2 direction, float age, Color color)> backgroundParticles;
+        Particles foregroundParticles;
+        Particles backgroundParticles;
 
         Game game;
         State state;
-
-        List<Vector2> mousePositions;
+        
         List<Vector2> touchPositions;
 
         double timestamp;
@@ -42,11 +41,7 @@ namespace Snake.Scenes
         public Level(IScenes scenes)
         {
             this.scenes = scenes;
-
-            foregroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
-            backgroundParticles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
-
-            mousePositions = new List<Vector2>();
+            
             touchPositions = new List<Vector2>();
 
             random = new Random();
@@ -82,68 +77,7 @@ namespace Snake.Scenes
                 input = gamepad.IsButtonDown(Buttons.DPadRight) ? Input.Right : input;
                 input = gamepad.IsButtonDown(Buttons.DPadUp) ? Input.Up : input;
                 input = gamepad.IsButtonDown(Buttons.DPadDown) ? Input.Down : input;
-
-                var mouse = Mouse.GetState();
-                if (mouse.LeftButton == ButtonState.Released)
-                {
-                    mousePositions.Clear();
-                }
-                if (mouse.LeftButton == ButtonState.Pressed)
-                {
-                    var position = new Vector2(mouse.X, mouse.Y);
-                    mousePositions.Add(position);
-                    mousePositions.Reverse();
-                    mousePositions = mousePositions.Take(10).ToList();
-                    mousePositions.Reverse();
-
-                    if (mousePositions.Count == 10)
-                    {
-                        var direction = position - mousePositions.First();
-                        var normalizedDirection = Vector2.Normalize(direction);
-                        var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
-                        var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
-                        input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight > 0 ? Input.Left : input;
-                        input = Math.Abs(leftRight) >= Math.Abs(upDown) && leftRight < 0 ? Input.Right : input;
-                        input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown > 0 ? Input.Up : input;
-                        input = Math.Abs(leftRight) < Math.Abs(upDown) && upDown < 0 ? Input.Down : input;
-                    }
-                }
-
-                var touchpanel = TouchPanel.GetState();
-                if (touchpanel.Any())
-                {
-                    var touch = touchpanel.First();
-
-                    var position = touch.Position;
-                    touchPositions.Add(position);
-                    touchPositions.Reverse();
-                    touchPositions = touchPositions.Take(20).ToList();
-                    touchPositions.Reverse();
-
-                    if (touchPositions.Count == 20)
-                    {
-                        var direction = position - touchPositions.First();
-                        var normalizedDirection = Vector2.Normalize(direction);
-                        var leftRight = Vector2.Dot(normalizedDirection, -Vector2.UnitX);
-                        var upDown = Vector2.Dot(normalizedDirection, -Vector2.UnitY);
-                        var cosineOf22dot5Degrees = 0.92387953251128675612818318939679f;
-                        var touchInput = Input.None;
-                        touchInput = leftRight > cosineOf22dot5Degrees ? Input.Left : touchInput;
-                        touchInput = leftRight < -cosineOf22dot5Degrees ? Input.Right : touchInput;
-                        touchInput = upDown > cosineOf22dot5Degrees ? Input.Up : touchInput;
-                        touchInput = upDown < -cosineOf22dot5Degrees ? Input.Down : touchInput;
-                        if (touchInput != Input.None)
-                        {
-                            input = touchInput;
-                            touchPositions.Clear();
-                        }
-                    }
-                }
-                else
-                {
-                    touchPositions.Clear();
-                }
-
+                
                 milliseconds += delta.TotalMilliseconds;
                 if (milliseconds > rate)
                 {
@@ -163,27 +97,8 @@ namespace Snake.Scenes
 
                 bufferedInput = input;
 
-                foregroundParticles = foregroundParticles
-                .Select(p => (
-                    position: p.position + p.direction * (float)delta.TotalSeconds,
-                    direction: p.direction + RandomDirection() * 0.1f,
-                    age: p.age - (float)delta.TotalSeconds,
-                    color: p.color
-                ))
-                .Where(p => p.age > 0)
-                .ToList();
-
-                backgroundParticles = backgroundParticles
-                .Select(p => (
-                    position: p.position + p.direction * (float)delta.TotalSeconds,
-                    direction: p.direction + RandomDirection() * p.direction.Length() * 0.1f,
-                    age: p.age - (float)delta.TotalSeconds,
-                    color: p.color
-                ))
-                .Where(p => p.age > 0)
-                .ToList();
-
-                AddBackgroundParticlesAsNeeded();
+                foregroundParticles.Update(delta);
+                backgroundParticles.Update(delta);
 
                 shake /= 2;
                 if (shake < 0.001f)
@@ -227,10 +142,10 @@ namespace Snake.Scenes
                 basicEffect.World = Matrix.Identity;
                 basicEffect.CurrentTechnique.Passes.First().Apply();
 
-                foreach (var p in backgroundParticles)
+                backgroundParticles.Each(p =>
                 {
                     DrawSquare(graphics.GraphicsDevice, p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f);
-                }
+                });
                 DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0);
 
                 basicEffect.World = Matrix.CreateTranslation(-7.5f, -7.5f, 0) * Matrix.CreateScale(1f / 8);
@@ -263,10 +178,10 @@ namespace Snake.Scenes
                         }
                     }
                 }
-                foreach (var p in foregroundParticles)
+                foregroundParticles.Each(p =>
                 {
                     DrawSquare(graphics.GraphicsDevice, p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f);
-                }
+                });
 
                 pixelFont.DrawString($"                    Highscore\n{state.score}\n{state.highscore}", (x, y) =>
                 {
@@ -280,18 +195,15 @@ namespace Snake.Scenes
         {
             base.Begin();
 
-            foregroundParticles.Clear();
-            backgroundParticles.Clear();
-
-            mousePositions.Clear();
+            foregroundParticles = new Particles();
+            backgroundParticles = new BackgroundParticles();
+            
             touchPositions.Clear();
 
             game = new Game(16);
             state = game.Init(0);
 
             AddGlitter(150);
-
-            AddBackgroundParticlesAsNeeded();
 
             game.OnMoment = moment =>
             {
@@ -302,10 +214,13 @@ namespace Snake.Scenes
                         var a = new Vector2(state.apple.position.X, state.apple.position.Y);
                         for (var i = 0; i < 25; i++)
                         {
-                            foregroundParticles.Add((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0)));
-                            foregroundParticles.Add((a + RandomDirection(0f, .7f), RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 0.45f, new Color(random.Next(140, 256), 0, 0)));
-                            foregroundParticles.Add((a + RandomDirection(0f, .5f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.45f, new Color(random.Next(170, 256), 150, 0)));
-                            foregroundParticles.Add((a + RandomDirection(0f, .3f), RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(150, 256), 0, 0)));
+                            foregroundParticles.Add(
+                                ((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0))),
+                                ((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0))),
+                                ((a + RandomDirection(0f, .7f), RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 0.45f, new Color(random.Next(140, 256), 0, 0))),
+                                ((a + RandomDirection(0f, .5f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.45f, new Color(random.Next(170, 256), 150, 0))),
+                                ((a + RandomDirection(0f, .3f), RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(150, 256), 0, 0)))
+                            );
                         }
                         break;
 
@@ -316,15 +231,19 @@ namespace Snake.Scenes
                         {
                             for (var i = 0; i < 25; i++)
                             {
-                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.75f + 0.45f, new Color(0, random.Next(50, 100), 0)));
-                                foregroundParticles.Add((p + RandomDirection(.25f, .35f), RandomDirection() * 0.3f, (float)random.NextDouble() * 0.85f + 0.45f, new Color(0, random.Next(50, 100), 0)));
-                                foregroundParticles.Add((p + RandomDirection(0f, .45f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.95f + 0.35f, new Color(random.Next(100, 150), 120, 20)));
+                                foregroundParticles.Add(
+                                    ((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.75f + 0.45f, new Color(0, random.Next(50, 100), 0))),
+                                    ((p + RandomDirection(.25f, .35f), RandomDirection() * 0.3f, (float)random.NextDouble() * 0.85f + 0.45f, new Color(0, random.Next(50, 100), 0))),
+                                    ((p + RandomDirection(0f, .45f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.95f + 0.35f, new Color(random.Next(100, 150), 120, 20)))
+                                );
                             }
                             for (var i = 0; i < 2; i++)
                             {
                                 if (random.Next(0, 10) > 6)
                                 {
-                                    foregroundParticles.Add((p + RandomDirection(0f, .35f), RandomDirection() * 0f, (float)random.NextDouble() * 1.75f + 0.45f, new Color(255, 0, 0)));
+                                    foregroundParticles.Add(
+                                        ((p + RandomDirection(0f, .35f), RandomDirection() * 0f, (float)random.NextDouble() * 1.75f + 0.45f, new Color(255, 0, 0)))
+                                    );
                                 }
                             }
                         }
@@ -336,7 +255,9 @@ namespace Snake.Scenes
                         {
                             for (var i = 0; i < 10; i++)
                             {
-                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.65f + 0.15f, new Color(random.Next(100, 250), random.Next(100, 250), random.Next(100, 250))));
+                                foregroundParticles.Add(
+                                    ((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.65f + 0.15f, new Color(random.Next(100, 250), random.Next(100, 250), random.Next(100, 250))))
+                                );
                             }
                         }
                         break;
@@ -346,7 +267,9 @@ namespace Snake.Scenes
                         {
                             if (random.Next(0, 10) > 8)
                             {
-                                foregroundParticles.Add((p + RandomDirection(.5f, .5f), RandomDirection() * .05f, (float)random.NextDouble() * .85f + 0.35f, new Color(random.Next(0, 100), random.Next(50, 250), random.Next(0, 25))));
+                                foregroundParticles.Add(
+                                    ((p + RandomDirection(.5f, .5f), RandomDirection() * .05f, (float)random.NextDouble() * .85f + 0.35f, new Color(random.Next(0, 100), random.Next(50, 250), random.Next(0, 25))))
+                                );
                             }
                         }
                         break;
@@ -364,25 +287,12 @@ namespace Snake.Scenes
                 for (var i = 0; i < times; i++)
                 {
                     var f = (p: explode ? 1f : 10f, s: explode ? 10f : 1f);
-                    foregroundParticles.Add((p + f.p * RandomDirection(0f, 1.3f), f.s * RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 1.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    foregroundParticles.Add((p + f.p * RandomDirection(0f, 1.1f), f.s * RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    foregroundParticles.Add((p + f.p * RandomDirection(0f, .9f), f.s * RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    foregroundParticles.Add((p + f.p * RandomDirection(0f, .7f), f.s * RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                }
-            }
-        }
-
-        private void AddBackgroundParticlesAsNeeded()
-        {
-            while(backgroundParticles.Count < 140)
-            {
-                for (var i = 0; i < 5; i++)
-                {
-                    var p = RandomDirection(0f, 1f);
-                    backgroundParticles.Add((p + RandomDirection(0f, 1.3f), 0.1f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.35f + 3.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    backgroundParticles.Add((p + RandomDirection(0f, 1.1f), 0.4f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.45f + 2.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    backgroundParticles.Add((p + RandomDirection(0f, .9f), 0.7f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.65f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
-                    backgroundParticles.Add((p + RandomDirection(0f, .7f), 1f * (p + RandomDirection(0f, 0.2f)), (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))));
+                    foregroundParticles.Add(
+                        ((p + f.p * RandomDirection(0f, 1.3f), f.s * RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 1.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
+                        ((p + f.p * RandomDirection(0f, 1.1f), f.s * RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
+                        ((p + f.p * RandomDirection(0f, .9f), f.s * RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
+                        ((p + f.p * RandomDirection(0f, .7f), f.s * RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))))
+                    );
                 }
             }
         }

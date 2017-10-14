@@ -17,6 +17,7 @@ namespace Snake.Scenes
             int selectionIndex = 0;
             int selectionCount = 3;
             KeyboardState lastKeyboard = default(KeyboardState);
+            BackgroundParticles backgroundParticles = new BackgroundParticles();
 
             LoadContent = content =>
             {
@@ -27,6 +28,7 @@ namespace Snake.Scenes
             Update = (runtime, delta) =>
             {
                 _runtime = runtime;
+                backgroundParticles.Update(delta / 2);
                 var keyboard = Keyboard.GetState();
                 if (keyboard.IsKeyDown(Keys.Down) && lastKeyboard.IsKeyUp(Keys.Down))
                 {
@@ -78,7 +80,12 @@ namespace Snake.Scenes
 
                 basicEffect.World = Matrix.Identity;
                 basicEffect.CurrentTechnique.Passes.First().Apply();
-                
+
+                backgroundParticles.Each(p =>
+                {
+                    DrawSquare(graphics.GraphicsDevice, p.position.X, p.position.Y, p.age * .1f, p.color * .2f, 0.2f);
+                });
+
                 var seconds = (float)_runtime.TotalSeconds;
                 var heights = new float[]
                 {
@@ -108,9 +115,9 @@ namespace Snake.Scenes
 
                 DrawAnimatedMessage(graphics, basicEffect, pixelFont, "SNAKE", seconds, heights[3], 1f / 12f);
 
-                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 36f);
-                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 36f);
-                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 36f);
+                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 48f);
+                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 48f);
+                DrawAnimatedMessage(graphics, basicEffect, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 48f);
             };
         }
 
