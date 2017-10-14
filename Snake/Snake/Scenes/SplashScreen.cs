@@ -8,7 +8,7 @@ namespace Snake.Scenes
 {
     internal class SplashScreen : Scene
     {
-        TimeSpan _runtime;
+        TimeSpan runtime;
 
         public SplashScreen(IScenes scenes)
         {
@@ -24,37 +24,17 @@ namespace Snake.Scenes
 
             Update = (runtime, delta) =>
             {
-                _runtime = runtime;
+                this.runtime = runtime;
                 if (runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings) || Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
-                    this.End();
-                    scenes.TitleScreen.Begin();
+                    this._End();
+                    scenes.TitleScreen._Begin();
                 }
             };
 
-            Draw = (graphics, basicEffect, gameTime) =>
+            Draw = (engine, graphics, basicEffect, gameTime) =>
             {
-                var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
-
-                if (size.height < size.width)
-                {
-                    basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1f * size.height / size.width, 1, 1));
-                }
-                else
-                {
-                    basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
-                }
-
-                graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
-                graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
-                basicEffect.VertexColorEnabled = true;
-                basicEffect.TextureEnabled = true;
                 basicEffect.Texture = glowingTile;
-                graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-                basicEffect.CurrentTechnique.Passes.First().Apply();
-
-                basicEffect.World = Matrix.Identity;
-                basicEffect.CurrentTechnique.Passes.First().Apply();
 
                 var message = "unpolished games presents...";
 
@@ -63,39 +43,18 @@ namespace Snake.Scenes
                     * Matrix.CreateScale(1f / 64f);
                 basicEffect.CurrentTechnique.Passes.First().Apply();
 
-                var seconds = (float)_runtime.TotalSeconds - delayForWindowsRecordings;
+                var seconds = (float)runtime.TotalSeconds - delayForWindowsRecordings;
 
                 pixelFont.DrawString(message, (x, y) =>
                 {
                     var dx = x / (float)message.Length;
                     var fade = Math.Max(0, Math.Min((seconds - .5f) - dx / 3, (3 - seconds) + dx / 3));
                     var color = Grey((float)Math.Sqrt(fade));
-                    DrawSquare(graphics.GraphicsDevice, x, y, 1f, color, (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20));
+                    engine.DrawSquare(x, y, 1f, color, (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), runtime);
                 });
             };
         }
 
         private Color Grey(float brightness) => new Color(brightness, brightness, brightness);
-
-        private void DrawSquare(GraphicsDevice graphicsDevice, float x, float y, float scale, Color color, float factor)
-        {
-            scale *= 1 + factor * (float)Math.Sin(_runtime.TotalSeconds * 2.4f + x + y);
-            var positions = new Vector3[]
-            {
-                new Vector3(x - scale, y - scale, 0),
-                new Vector3(x - scale, y + scale, 0),
-                new Vector3(x + scale, y - scale, 0),
-                new Vector3(x + scale, y + scale, 0)
-            }
-            .ToArray();
-            var vertices = new VertexPositionColorTexture[]
-            {
-                new VertexPositionColorTexture(positions[0], color, Vector2.Zero),
-                new VertexPositionColorTexture(positions[1], color, Vector2.UnitX),
-                new VertexPositionColorTexture(positions[2], color, Vector2.UnitY),
-                new VertexPositionColorTexture(positions[3], color, Vector2.One)
-            };
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, 2);
-        }
     }
 }

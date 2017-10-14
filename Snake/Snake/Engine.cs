@@ -45,7 +45,7 @@ namespace Snake
             base.Initialize();
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
 
-            SplashScreen.Begin();
+            SplashScreen._Begin();
         }
 
         private Scenes.Scene[] allScenes;
@@ -73,8 +73,6 @@ namespace Snake
                 scene._LoadContent(Content);
             }
         }
-
-        internal void SetNewHighscore(int highscore) => (Level as Scenes.Level).SetNewHighscore(highscore);
 
         public Action<State> OnDraw { get; internal set; }
 
@@ -104,10 +102,52 @@ namespace Snake
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.Black);
-            foreach(var scene in ActiveScenes)
+            var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
+
+            if (size.height < size.width)
             {
-                scene._Draw(graphics, basicEffect, gameTime);
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1f * size.height / size.width, 1, 1));
             }
+            else
+            {
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
+            }
+
+            graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            graphics.GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            basicEffect.VertexColorEnabled = true;
+            basicEffect.TextureEnabled = true;
+            graphics.GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            basicEffect.CurrentTechnique.Passes.First().Apply();
+
+            basicEffect.World = Matrix.Identity;
+            basicEffect.CurrentTechnique.Passes.First().Apply();
+
+            foreach (var scene in ActiveScenes)
+            {
+                scene._Draw(this, graphics, basicEffect, gameTime);
+            }
+        }
+
+        public void DrawSquare(float x, float y, float scale, Color color, float factor, TimeSpan runtime)
+        {
+            scale *= 1 + factor * (float)Math.Sin(runtime.TotalSeconds * 2.4f + x + y);
+            var positions = new Vector3[]
+            {
+                new Vector3(x - scale, y - scale, 0),
+                new Vector3(x - scale, y + scale, 0),
+                new Vector3(x + scale, y - scale, 0),
+                new Vector3(x + scale, y + scale, 0)
+            }
+            .ToArray();
+            var vertices = new VertexPositionColorTexture[]
+            {
+                new VertexPositionColorTexture(positions[0], color, Vector2.Zero),
+                new VertexPositionColorTexture(positions[1], color, Vector2.UnitX),
+                new VertexPositionColorTexture(positions[2], color, Vector2.UnitY),
+                new VertexPositionColorTexture(positions[3], color, Vector2.One)
+            };
+            graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, 2);
         }
     }
 }

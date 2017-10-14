@@ -32,7 +32,7 @@ namespace Snake
             engine = MonoGame.Framework.XamlGame<Engine>.Create(string.Empty, Window.Current.CoreWindow, monogameRenderTarget);
             try
             {
-                engine.SetNewHighscore(Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]));
+                //engine.SetNewHighscore(Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]));
             }
             catch (Exception)
             {
@@ -60,7 +60,7 @@ namespace Snake
         {
             var highscore = Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]);
 
-            engine.SetNewHighscore(highscore);
+            //engine.SetNewHighscore(highscore);
         }
 
         private void Page_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)

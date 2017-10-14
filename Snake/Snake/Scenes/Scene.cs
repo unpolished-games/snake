@@ -12,27 +12,29 @@ namespace Snake.Scenes
 
         private TimeSpan runtime;
 
-        public virtual void Begin()
+        public virtual void _Begin()
         {
             this.active = true;
             this.runtime = TimeSpan.Zero;
+            Begin?.Invoke();
         }
-        public virtual void End()
+        public virtual void _End()
         {
             this.active = false;
         }
 
-        protected Action<GraphicsDeviceManager, BasicEffect, GameTime> Draw { private get; set; }
+        protected Action Begin { private get; set; }
+        protected Action<Engine, GraphicsDeviceManager, BasicEffect, GameTime> Draw { private get; set; }
         protected Action<ContentManager> LoadContent { private get; set; }
         protected Action<TimeSpan, TimeSpan> Update { private get; set; }
 
-        public void _Draw(GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime)
+        public void _Draw(Engine engine, GraphicsDeviceManager graphics, BasicEffect basicEffect, GameTime gameTime)
         {
-            Draw(graphics, basicEffect, gameTime);
+            Draw(engine, graphics, basicEffect, gameTime);
         }
         public void _LoadContent(ContentManager content)
         {
-            LoadContent(content);
+            LoadContent?.Invoke(content);
         }
         public void _Update(GameTime gameTime)
         {
