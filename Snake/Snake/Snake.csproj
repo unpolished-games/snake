@@ -116,6 +116,7 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="BackgroundParticles.cs" />
+    <Compile Include="ForegroundParticles.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

@@ -22,8 +22,8 @@ namespace Snake.Scenes
 
         Random random;
 
-        Particles foregroundParticles;
-        Particles backgroundParticles;
+        ForegroundParticles foregroundParticles;
+        BackgroundParticles backgroundParticles;
 
         Game game;
         State state;
@@ -84,8 +84,6 @@ namespace Snake.Scenes
                     milliseconds -= rate;
 
                     state = game.Update(state, input);
-
-                    //AddGlitter(random.Next(2, 5), chance: .02f, position: RandomDirection() * 5, explode: true);
 
                     if (keyboard.IsKeyDown(Keys.H))
                     {
@@ -195,7 +193,7 @@ namespace Snake.Scenes
         {
             base.Begin();
 
-            foregroundParticles = new Particles();
+            foregroundParticles = new ForegroundParticles();
             backgroundParticles = new BackgroundParticles();
             
             touchPositions.Clear();
@@ -203,104 +201,32 @@ namespace Snake.Scenes
             game = new Game(16);
             state = game.Init(0);
 
-            AddGlitter(150);
-
             game.OnMoment = moment =>
             {
                 switch (moment)
                 {
                     case Moment.EatingApple:
                         eatingApple.Play();
-                        var a = new Vector2(state.apple.position.X, state.apple.position.Y);
-                        for (var i = 0; i < 25; i++)
-                        {
-                            foregroundParticles.Add(
-                                ((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0))),
-                                ((a + RandomDirection(0f, .9f), RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 0.45f, new Color(random.Next(180, 256), 0, 0))),
-                                ((a + RandomDirection(0f, .7f), RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 0.45f, new Color(random.Next(140, 256), 0, 0))),
-                                ((a + RandomDirection(0f, .5f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.45f, new Color(random.Next(170, 256), 150, 0))),
-                                ((a + RandomDirection(0f, .3f), RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(150, 256), 0, 0)))
-                            );
-                        }
+                        foregroundParticles.AddEatenApple(new Vector2(state.apple.position.X, state.apple.position.Y));
                         break;
 
                     case Moment.Dying:
                         dyingSnake.Play();
                         shake = 1f;
-                        foreach (var p in state.snake.links.Select(l => new Vector2(l.X, l.Y)))
-                        {
-                            for (var i = 0; i < 25; i++)
-                            {
-                                foregroundParticles.Add(
-                                    ((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.75f + 0.45f, new Color(0, random.Next(50, 100), 0))),
-                                    ((p + RandomDirection(.25f, .35f), RandomDirection() * 0.3f, (float)random.NextDouble() * 0.85f + 0.45f, new Color(0, random.Next(50, 100), 0))),
-                                    ((p + RandomDirection(0f, .45f), RandomDirection() * 0.1f, (float)random.NextDouble() * 0.95f + 0.35f, new Color(random.Next(100, 150), 120, 20)))
-                                );
-                            }
-                            for (var i = 0; i < 2; i++)
-                            {
-                                if (random.Next(0, 10) > 6)
-                                {
-                                    foregroundParticles.Add(
-                                        ((p + RandomDirection(0f, .35f), RandomDirection() * 0f, (float)random.NextDouble() * 1.75f + 0.45f, new Color(255, 0, 0)))
-                                    );
-                                }
-                            }
-                        }
+                        foregroundParticles.AddDyingSnake(state.snake.links.Select(l => new Vector2(l.X, l.Y)));
                         break;
 
                     case Moment.NewHighscore:
                         newHighscore.Play();
-                        foreach (var p in state.snake.links.Select(l => new Vector2(l.X, l.Y)))
-                        {
-                            for (var i = 0; i < 10; i++)
-                            {
-                                foregroundParticles.Add(
-                                    ((p + RandomDirection(.5f, .5f), RandomDirection(), (float)random.NextDouble() * 0.65f + 0.15f, new Color(random.Next(100, 250), random.Next(100, 250), random.Next(100, 250))))
-                                );
-                            }
-                        }
+                        foregroundParticles.AddSparklesToSnake(state.snake.links.Select(l => new Vector2(l.X, l.Y)));
                         break;
 
                     case Moment.Moving:
-                        foreach (var p in state.snake.links.Select(l => new Vector2(l.X, l.Y)))
-                        {
-                            if (random.Next(0, 10) > 8)
-                            {
-                                foregroundParticles.Add(
-                                    ((p + RandomDirection(.5f, .5f), RandomDirection() * .05f, (float)random.NextDouble() * .85f + 0.35f, new Color(random.Next(0, 100), random.Next(50, 250), random.Next(0, 25))))
-                                );
-                            }
-                        }
+                        foregroundParticles.AddSparklesToMovement(state.snake.links.Select(l => new Vector2(l.X, l.Y)));
                         break;
 
                 }
             };
-        }
-
-        private void AddGlitter(int times, float chance = 1f, Vector2? position = null, bool explode = false)
-        {
-            if (random.NextDouble() < chance)
-            {
-                var p = position ?? Vector2.Zero;
-                p += new Vector2(8, 8);
-                for (var i = 0; i < times; i++)
-                {
-                    var f = (p: explode ? 1f : 10f, s: explode ? 10f : 1f);
-                    foregroundParticles.Add(
-                        ((p + f.p * RandomDirection(0f, 1.3f), f.s * RandomDirection() * 0.8f, (float)random.NextDouble() * 0.35f + 1.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
-                        ((p + f.p * RandomDirection(0f, 1.1f), f.s * RandomDirection() * 0.6f, (float)random.NextDouble() * 0.45f + 1.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
-                        ((p + f.p * RandomDirection(0f, .9f), f.s * RandomDirection() * 0.1f, (float)random.NextDouble() * 0.65f + 0.85f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256)))),
-                        ((p + f.p * RandomDirection(0f, .7f), f.s * RandomDirection() * 0.2f, (float)random.NextDouble() * 0.75f + 0.45f, new Color(random.Next(140, 256), random.Next(140, 256), random.Next(140, 256))))
-                    );
-                }
-            }
-        }
-
-        private Vector2 RandomDirection(float from = 1f, float to = 1f)
-        {
-            var next = random.NextDouble() * 2 * Math.PI;
-            return new Vector2((float)Math.Sin(next), (float)Math.Cos(next)) * ((float)random.NextDouble() * (to - from) + from);
         }
 
         internal void SetNewHighscore(int highscore)
