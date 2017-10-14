@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Linq;
 
 namespace Snake.Scenes
 {
@@ -57,9 +56,12 @@ namespace Snake.Scenes
                 lastKeyboard = keyboard;
             };
 
-            Draw = (engine, graphics, basicEffect, gameTime) =>
+            Draw = engine =>
             {
-                basicEffect.Texture = glowingTile;
+                engine.ConfigureEffect(e =>
+                {
+                    e.Texture = glowingTile;
+                });
 
                 backgroundParticles.Each(p =>
                 {
@@ -93,21 +95,23 @@ namespace Snake.Scenes
                     }
                 }
 
-                DrawAnimatedMessage(engine, graphics, basicEffect, pixelFont, "SNAKE", seconds, heights[3], 1f / 12f);
+                DrawAnimatedMessage(engine, pixelFont, "SNAKE", seconds, heights[3], 1f / 12f);
 
-                DrawAnimatedMessage(engine, graphics, basicEffect, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 48f);
-                DrawAnimatedMessage(engine, graphics, basicEffect, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 48f);
-                DrawAnimatedMessage(engine, graphics, basicEffect, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 48f);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 48f);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 48f);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 48f);
             };
         }
 
-        private void DrawAnimatedMessage(Engine engine, GraphicsDeviceManager graphics, BasicEffect basicEffect, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale)
+        private void DrawAnimatedMessage(Engine engine, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale)
         {
-            basicEffect.World =
-                Matrix.CreateTranslation(-((pixelFont.Width + 1) * message.Length - 1) / 2f + .5f, -pixelFont.Height / 2f + .5f, 0)
-                * Matrix.CreateScale(scale)
-                * Matrix.CreateTranslation(0, verticalShift, 0);
-            basicEffect.CurrentTechnique.Passes.First().Apply();
+            engine.ConfigureEffect(e =>
+            {
+                e.World =
+                    Matrix.CreateTranslation(-((pixelFont.Width + 1) * message.Length - 1) / 2f + .5f, -pixelFont.Height / 2f + .5f, 0)
+                    * Matrix.CreateScale(scale)
+                    * Matrix.CreateTranslation(0, verticalShift, 0);
+            });
 
             pixelFont.DrawString(message, (x, y) =>
             {

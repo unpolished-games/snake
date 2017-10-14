@@ -134,20 +134,26 @@ namespace Snake.Scenes
                 _runtime = runtime;
             };
 
-            Draw = (engine, graphics, basicEffect, gameTime) =>
+            Draw = engine =>
             {
-                graphics.GraphicsDevice.Clear(Color.DarkSlateBlue);
+                engine.ClearScreen(Color.DarkSlateBlue);
 
                 var _shake = Math.Pow(shake, 0.125f);
-                basicEffect.View = Matrix.CreateTranslation(
-                    0.02f * (float)(_shake * Math.Sin(_runtime.TotalSeconds * 74.1)),
-                    0.02f * (float)(_shake * Math.Sin((_runtime.TotalSeconds + 23532) * 47.2)),
-                    0
-                );
 
-                basicEffect.Texture = glowingTile;
-                basicEffect.World = Matrix.Identity;
-                basicEffect.CurrentTechnique.Passes.First().Apply();
+                engine.ConfigureEffect(e =>
+                {
+                    e.View = Matrix.CreateTranslation(
+                        0.02f * (float)(_shake * Math.Sin(_runtime.TotalSeconds * 74.1)),
+                        0.02f * (float)(_shake * Math.Sin((_runtime.TotalSeconds + 23532) * 47.2)),
+                        0
+                    );
+                });
+
+                engine.ConfigureEffect(e =>
+                {
+                    e.Texture = glowingTile;
+                    e.World = Matrix.Identity;
+                });
 
                 backgroundParticles.Each(p =>
                 {
@@ -155,8 +161,10 @@ namespace Snake.Scenes
                 });
                 //engine.DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0, _runtime);
 
-                basicEffect.World = Matrix.CreateTranslation(-7.5f, -7.5f, 0) * Matrix.CreateScale(1f / 8);
-                basicEffect.CurrentTechnique.Passes.First().Apply();
+                engine.ConfigureEffect(e =>
+                {
+                    e.World = Matrix.CreateTranslation(-7.5f, -7.5f, 0) * Matrix.CreateScale(1f / 8);
+                });
 
                 for (var y = 0; y < 16; y++)
                 {

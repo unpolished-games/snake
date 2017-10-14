@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Linq;
 
 namespace Snake.Scenes
 {
@@ -32,16 +31,17 @@ namespace Snake.Scenes
                 }
             };
 
-            Draw = (engine, graphics, basicEffect, gameTime) =>
+            Draw = engine =>
             {
-                basicEffect.Texture = glowingTile;
-
                 var message = "unpolished games presents...";
 
-                basicEffect.World =
-                    Matrix.CreateTranslation(-((pixelFont.Width + 1) * message.Length - 1) / 2f + .5f, -pixelFont.Height / 2f + .5f, 0)
-                    * Matrix.CreateScale(1f / 64f);
-                basicEffect.CurrentTechnique.Passes.First().Apply();
+                engine.ConfigureEffect(e =>
+                {
+                    e.Texture = glowingTile;
+                    e.World =
+                        Matrix.CreateTranslation(-((pixelFont.Width + 1) * message.Length - 1) / 2f + .5f, -pixelFont.Height / 2f + .5f, 0)
+                        * Matrix.CreateScale(1f / 64f);
+                });
 
                 var seconds = (float)runtime.TotalSeconds - delayForWindowsRecordings;
 

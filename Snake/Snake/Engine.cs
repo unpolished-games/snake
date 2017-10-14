@@ -125,8 +125,19 @@ namespace Snake
 
             foreach (var scene in ActiveScenes)
             {
-                scene._Draw(this, graphics, basicEffect, gameTime);
+                scene._Draw(this);
             }
+        }
+
+        public void ClearScreen(Color color)
+        {
+            graphics.GraphicsDevice.Clear(color);
+        }
+
+        public void ConfigureEffect(Action<BasicEffect> configurationCallback)
+        {
+            configurationCallback(basicEffect);
+            basicEffect.CurrentTechnique.Passes.First().Apply();
         }
 
         public void DrawSquare(float x, float y, float scale, Color color, float factor, TimeSpan runtime)
