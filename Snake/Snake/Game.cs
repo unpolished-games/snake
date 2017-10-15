@@ -64,6 +64,19 @@ namespace Snake
                     (key == Input.Right ? 1 : 0) - (key == Input.Left ? 1 : 0),
                     (key == Input.Down ? 1 : 0) - (key == Input.Up ? 1 : 0)
                 );
+                if (key == Input.TurnLeft)
+                {
+                    nextSpeed = new Vector2(speed.Y, -speed.X);
+                }
+                else if (key == Input.TurnRight)
+                {
+                    nextSpeed = new Vector2(-speed.Y, speed.X);
+                }
+                // when starting the game, and snake isn't moving yet, move upwards
+                if(nextSpeed == Vector2.Zero)
+                {
+                    nextSpeed = -Vector2.UnitY;
+                }
                 // prevent 180° turns
                 return nextSpeed != -speed ? nextSpeed : speed;
             }
@@ -181,7 +194,9 @@ namespace Snake
         Left,
         Up,
         Right,
-        Down
+        Down,
+        TurnLeft,
+        TurnRight
     }
 
     enum Moment
