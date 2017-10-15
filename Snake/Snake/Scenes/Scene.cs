@@ -10,14 +10,15 @@ namespace Snake.Scenes
         public bool Active => active;
 
         private TimeSpan runtime;
+        protected TimeSpan Runtime => runtime;
 
-        public virtual void _Begin()
+        public virtual void BeginScene()
         {
             this.active = true;
             this.runtime = TimeSpan.Zero;
             Begin?.Invoke();
         }
-        public virtual void _End()
+        public virtual void EndScene()
         {
             this.active = false;
         }
@@ -25,20 +26,20 @@ namespace Snake.Scenes
         protected Action Begin { private get; set; }
         protected Action<Engine> Draw { private get; set; }
         protected Action<ContentManager> LoadContent { private get; set; }
-        protected Action<TimeSpan, TimeSpan> Update { private get; set; }
+        protected Action<TimeSpan> Update { private get; set; }
 
-        public void _Draw(Engine engine)
+        public void DrawScene(Engine engine)
         {
             Draw(engine);
         }
-        public void _LoadContent(ContentManager content)
+        public void LoadContentForScene(ContentManager content)
         {
             LoadContent?.Invoke(content);
         }
-        public void _Update(GameTime gameTime)
+        public void UpdateScene(GameTime gameTime)
         {
             runtime += gameTime.ElapsedGameTime;
-            Update(runtime, gameTime.ElapsedGameTime);
+            Update(gameTime.ElapsedGameTime);
         }
     }
 }

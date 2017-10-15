@@ -7,8 +7,6 @@ namespace Snake.Scenes
 {
     internal class TitleScreen : Scene
     {
-        TimeSpan runtime;
-
         public TitleScreen(IScenes scenes)
         {
             Texture2D glowingTile = null;
@@ -24,9 +22,8 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = (runtime, delta) =>
+            Update = delta =>
             {
-                this.runtime = runtime;
                 backgroundParticles.Update(delta / 2);
                 var keyboard = Keyboard.GetState();
                 if (keyboard.IsKeyDown(Keys.Down) && lastKeyboard.IsKeyUp(Keys.Down))
@@ -42,14 +39,14 @@ namespace Snake.Scenes
                     switch(selectionIndex)
                     {
                         case 0:
-                            scenes.Level._Begin();
+                            scenes.Level.BeginScene();
                             break;
 
                         case 1:
                             break;
 
                         case 2:
-                            this._End();
+                            this.EndScene();
                             break;
                     }
                 }
@@ -65,10 +62,10 @@ namespace Snake.Scenes
 
                 backgroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color * .2f, 0.2f, runtime);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color * .2f, 0.2f, Runtime);
                 });
 
-                var seconds = (float)runtime.TotalSeconds;
+                var seconds = (float)Runtime.TotalSeconds;
                 var heights = new float[]
                 {
                     MathHelper.SmoothStep(0, -.5f, (seconds - 2.5f) * 1f),
@@ -118,7 +115,7 @@ namespace Snake.Scenes
                 var dx = x / (float)message.Length;
                 var fade = Math.Max(0, Math.Min(1, (seconds - .5f) - dx / 3));
                 var color = Grey((float)Math.Sqrt(fade));
-                engine.DrawSquare(x, y, 1f, color, 0.1f + (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), runtime);
+                engine.DrawSquare(x, y, 1f, color, 0.1f + (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), Runtime);
             });
         }
 

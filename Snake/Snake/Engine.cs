@@ -45,7 +45,7 @@ namespace Snake
             base.Initialize();
             basicEffect = new BasicEffect(graphics.GraphicsDevice);
 
-            SplashScreen._Begin();
+            SplashScreen.BeginScene();
         }
 
         private Scenes.Scene[] allScenes;
@@ -70,7 +70,7 @@ namespace Snake
 
             foreach(var scene in AllScenes)
             {
-                scene._LoadContent(Content);
+                scene.LoadContentForScene(Content);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Snake
             }
             foreach(var scenes in ActiveScenes)
             {
-                scenes._Update(gameTime);
+                scenes.UpdateScene(gameTime);
             }
         }
 
@@ -125,7 +125,7 @@ namespace Snake
 
             foreach (var scene in ActiveScenes)
             {
-                scene._Draw(this);
+                scene.DrawScene(this);
             }
         }
 

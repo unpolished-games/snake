@@ -7,8 +7,6 @@ namespace Snake.Scenes
 {
     internal class SplashScreen : Scene
     {
-        TimeSpan runtime;
-
         public SplashScreen(IScenes scenes)
         {
             Texture2D glowingTile = null;
@@ -21,13 +19,12 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = (runtime, delta) =>
+            Update = delta =>
             {
-                this.runtime = runtime;
-                if (runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings) || Keyboard.GetState().IsKeyDown(Keys.Space))
+                if (Runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings) || Keyboard.GetState().IsKeyDown(Keys.Space))
                 {
-                    this._End();
-                    scenes.TitleScreen._Begin();
+                    this.EndScene();
+                    scenes.TitleScreen.BeginScene();
                 }
             };
 
@@ -43,14 +40,14 @@ namespace Snake.Scenes
                         * Matrix.CreateScale(1f / 64f);
                 });
 
-                var seconds = (float)runtime.TotalSeconds - delayForWindowsRecordings;
+                var seconds = (float)Runtime.TotalSeconds - delayForWindowsRecordings;
 
                 pixelFont.DrawString(message, (x, y) =>
                 {
                     var dx = x / (float)message.Length;
                     var fade = Math.Max(0, Math.Min((seconds - .5f) - dx / 3, (3 - seconds) + dx / 3));
                     var color = Grey((float)Math.Sqrt(fade));
-                    engine.DrawSquare(x, y, 1f, color, (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), runtime);
+                    engine.DrawSquare(x, y, 1f, color, (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), Runtime);
                 });
             };
         }

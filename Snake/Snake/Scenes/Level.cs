@@ -18,7 +18,6 @@ namespace Snake.Scenes
             BackgroundParticles backgroundParticles = default;
             Game game = default;
             State state = default;
-            TimeSpan _runtime = default;
 
             Texture2D glowingTile = default;
             PixelFont pixelFont = default;
@@ -93,12 +92,12 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = (runtime, delta) =>
+            Update = delta =>
             {
                 var keyboard = Keyboard.GetState();
                 if(keyboard.IsKeyDown(Keys.Escape))
                 {
-                    this._End();
+                    this.EndScene();
                 }
                 var input = bufferedInput;
                 input = keyboard.IsKeyDown(Keys.Left) ? Input.Left : input;
@@ -130,8 +129,6 @@ namespace Snake.Scenes
                 {
                     shake = 0;
                 }
-
-                _runtime = runtime;
             };
 
             Draw = engine =>
@@ -143,8 +140,8 @@ namespace Snake.Scenes
                 engine.ConfigureEffect(e =>
                 {
                     e.View = Matrix.CreateTranslation(
-                        0.02f * (float)(_shake * Math.Sin(_runtime.TotalSeconds * 74.1)),
-                        0.02f * (float)(_shake * Math.Sin((_runtime.TotalSeconds + 23532) * 47.2)),
+                        0.02f * (float)(_shake * Math.Sin(Runtime.TotalSeconds * 74.1)),
+                        0.02f * (float)(_shake * Math.Sin((Runtime.TotalSeconds + 23532) * 47.2)),
                         0
                     );
                 });
@@ -157,9 +154,9 @@ namespace Snake.Scenes
 
                 backgroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f, _runtime);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f, Runtime);
                 });
-                //engine.DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0, _runtime);
+                //engine.DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0, Runtime);
 
                 engine.ConfigureEffect(e =>
                 {
@@ -170,8 +167,8 @@ namespace Snake.Scenes
                 {
                     for (var x = 0; x < 16; x++)
                     {
-                        var scale = (1 - 4 * Math.Max(0, (float)shake - .3f * field[x, y].random)) * Math.Min(1.01f, Math.Max(0f, (float)(_runtime.TotalSeconds - field[x, y].random)));
-                        engine.DrawSquare(x, y, scale, field[x, y].color, 0.01f, _runtime);
+                        var scale = (1 - 4 * Math.Max(0, (float)shake - .3f * field[x, y].random)) * Math.Min(1.01f, Math.Max(0f, (float)(Runtime.TotalSeconds - field[x, y].random)));
+                        engine.DrawSquare(x, y, scale, field[x, y].color, 0.01f, Runtime);
                     }
                 }
 
@@ -186,18 +183,18 @@ namespace Snake.Scenes
                         var apple = state.apple.position == position;
                         if (apple)
                         {
-                            engine.DrawSquare(x, y, 15f / 16f, Color.Red, 0.15f, _runtime);
+                            engine.DrawSquare(x, y, 15f / 16f, Color.Red, 0.15f, Runtime);
                         }
                         else if (head)
                         {
-                            engine.DrawSquare(x, y, 15f / 16f, Color.LightGreen, 0.1f, _runtime);
+                            engine.DrawSquare(x, y, 15f / 16f, Color.LightGreen, 0.1f, Runtime);
                         }
                         else if (tail)
                         {
                             foreach (var (link, index) in state.snake.links.Select((link, index) => (link: link, index: index)).Where(value => value.link == position))
                             {
                                 var scale = 1f - 1f * index / state.snake.length;
-                                engine.DrawSquare(x, y, 1f - 1f / 4f * scale, Color.DarkGreen, 0.03f, _runtime);
+                                engine.DrawSquare(x, y, 1f - 1f / 4f * scale, Color.DarkGreen, 0.03f, Runtime);
                             }
                         }
                     }
@@ -205,13 +202,13 @@ namespace Snake.Scenes
 
                 foregroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f, _runtime);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f, Runtime);
                 });
 
                 pixelFont.DrawString($"                    Highscore\n{state.score}\n{state.highscore}", (x, y) =>
                 {
                     var scale = 1 / 8f;
-                    engine.DrawSquare(x * scale, y * scale, scale, Color.White, 0.1f, _runtime);
+                    engine.DrawSquare(x * scale, y * scale, scale, Color.White, 0.1f, Runtime);
                 }, rightAlign: true);
             };
         }
