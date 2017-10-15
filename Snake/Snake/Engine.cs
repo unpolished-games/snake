@@ -18,6 +18,7 @@ namespace Snake
     {
         GraphicsDeviceManager graphics;
         BasicEffect basicEffect;
+        BufferedInput input;
 
         public Scenes.Scene SplashScreen { get; }
         public Scenes.Scene TitleScreen { get; }
@@ -28,6 +29,7 @@ namespace Snake
             SplashScreen = new Scenes.SplashScreen(this);
             TitleScreen = new Scenes.TitleScreen(this);
             Level = new Scenes.Level(this);
+            input = new BufferedInput();
 
             graphics = new GraphicsDeviceManager(this)
             {
@@ -89,13 +91,14 @@ namespace Snake
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            input.Update();
             if(ActiveScenes.Count() == 0)
             {
                 Exit();
             }
             foreach(var scenes in ActiveScenes)
             {
-                scenes.UpdateScene(gameTime);
+                scenes.UpdateScene(input, gameTime);
             }
         }
 

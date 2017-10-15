@@ -19,9 +19,13 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = delta =>
+            Update = (input, delta) =>
             {
-                if (Runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings) || Keyboard.GetState().IsKeyDown(Keys.Space))
+                if (
+                    Runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings)
+                    || input.Keyboard.WhenDown(Keys.Enter)
+                    || input.TouchPanel.WhenTouching
+                )
                 {
                     this.EndScene();
                     scenes.TitleScreen.BeginScene();

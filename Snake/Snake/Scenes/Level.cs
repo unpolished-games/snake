@@ -20,9 +20,6 @@ namespace Snake.Scenes
             Game game = default;
             State state = default;
 
-            BufferedKeyboard keyboard = default;
-            BufferedTouchPanel touchPanel = default;
-
             Texture2D glowingTile = default;
             PixelFont pixelFont = default;
             SoundEffect eatingApple = default;
@@ -43,9 +40,6 @@ namespace Snake.Scenes
 
                 game = new Game(16);
                 state = game.Init(0);
-
-                keyboard = new BufferedKeyboard();
-                touchPanel = new BufferedTouchPanel();
 
                 for (var y = 0; y < 16; y++)
                 {
@@ -99,44 +93,45 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = delta =>
+            Update = (input, delta) =>
             {
-                keyboard.Update(Keyboard.GetState());
-                touchPanel.Update(TouchPanel.GetState());
+                var keyboard = input.Keyboard;
+                var touchPanel = input.TouchPanel;
+                var gamePad = input.GamePad;
 
                 if (keyboard.WhenDown(Keys.Escape))
                 {
                     this.EndScene();
+                    scenes.TitleScreen.ContinueScene();
                 }
-                var input = bufferedInput;
-                input = keyboard.WhenDown(Keys.Left) ? Input.Left : input;
-                input = keyboard.WhenDown(Keys.Right) ? Input.Right : input;
-                input = keyboard.WhenDown(Keys.Up) ? Input.Up : input;
-                input = keyboard.WhenDown(Keys.Down) ? Input.Down : input;
+                var gameInput = bufferedInput;
+                gameInput = keyboard.WhenDown(Keys.Left) ? Input.Left : gameInput;
+                gameInput = keyboard.WhenDown(Keys.Right) ? Input.Right : gameInput;
+                gameInput = keyboard.WhenDown(Keys.Up) ? Input.Up : gameInput;
+                gameInput = keyboard.WhenDown(Keys.Down) ? Input.Down : gameInput;
 
-                input = keyboard.WhenDown(Keys.LeftControl) ? Input.TurnLeft : input;
-                input = keyboard.WhenDown(Keys.RightControl) ? Input.TurnRight : input;
+                gameInput = keyboard.WhenDown(Keys.LeftControl) ? Input.TurnLeft : gameInput;
+                gameInput = keyboard.WhenDown(Keys.RightControl) ? Input.TurnRight : gameInput;
 
-                var gamepad = GamePad.GetState(PlayerIndex.One);
-                input = gamepad.IsButtonDown(Buttons.DPadLeft) ? Input.Left : input;
-                input = gamepad.IsButtonDown(Buttons.DPadRight) ? Input.Right : input;
-                input = gamepad.IsButtonDown(Buttons.DPadUp) ? Input.Up : input;
-                input = gamepad.IsButtonDown(Buttons.DPadDown) ? Input.Down : input;
+                gameInput = gamePad.WhenButtonDown(Buttons.DPadLeft) ? Input.Left : gameInput;
+                gameInput = gamePad.WhenButtonDown(Buttons.DPadRight) ? Input.Right : gameInput;
+                gameInput = gamePad.WhenButtonDown(Buttons.DPadUp) ? Input.Up : gameInput;
+                gameInput = gamePad.WhenButtonDown(Buttons.DPadDown) ? Input.Down : gameInput;
 
                 if(touchPanel.WhenTouching)
                 {
-                    input = touchPanel.Position.X < TouchPanel.DisplayWidth / 2 ? Input.TurnLeft : Input.TurnRight;
+                    gameInput = touchPanel.RelativePosition.X < 0.5f ? Input.TurnLeft : Input.TurnRight;
                 }
 
                 bufferToNextTick += delta;
                 if (bufferToNextTick > tickRate)
                 {
                     bufferToNextTick -= tickRate;
-                    state = game.Update(state, input);
-                    input = Input.None;
+                    state = game.Update(state, gameInput);
+                    gameInput = Input.None;
                 }
 
-                bufferedInput = input;
+                bufferedInput = gameInput;
 
                 foregroundParticles.Update(delta);
                 backgroundParticles.Update(delta);
@@ -229,38 +224,5 @@ namespace Snake.Scenes
                 }, rightAlign: true);
             };
         }
-    }
-
-    class BufferedKeyboard
-    {
-        KeyboardState last;
-        KeyboardState current;
-
-        public void Update(KeyboardState next)
-        {
-            this.last = current;
-            this.current = next;
-        }
-
-        public bool WhileDown(Keys key) => current.IsKeyDown(key);
-
-        public bool WhenDown(Keys key) => WhileDown(key) && last.IsKeyUp(key);
-    }
-
-    class BufferedTouchPanel
-    {
-        TouchCollection last;
-        TouchCollection current;
-
-        public void Update(TouchCollection next)
-        {
-            this.last = current;
-            this.current = next;
-        }
-
-        public bool WhileTouching => current.Count > 0;
-        public bool WhenTouching => WhileTouching && last.Count == 0;
-
-        public Vector2 Position => current.First().Position;
     }
 }

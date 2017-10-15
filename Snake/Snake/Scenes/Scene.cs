@@ -26,7 +26,7 @@ namespace Snake.Scenes
         protected Action Begin { private get; set; }
         protected Action<Engine> Draw { private get; set; }
         protected Action<ContentManager> LoadContent { private get; set; }
-        protected Action<TimeSpan> Update { private get; set; }
+        protected Action<BufferedInput, TimeSpan> Update { private get; set; }
 
         public void DrawScene(Engine engine)
         {
@@ -36,10 +36,24 @@ namespace Snake.Scenes
         {
             LoadContent?.Invoke(content);
         }
-        public void UpdateScene(GameTime gameTime)
+        public void UpdateScene(BufferedInput input, GameTime gameTime)
         {
+            var justStarted = runtime == TimeSpan.Zero;
             runtime += gameTime.ElapsedGameTime;
-            Update(gameTime.ElapsedGameTime);
+            if(!justStarted)
+            {
+                Update(input, gameTime.ElapsedGameTime);
+            }
+        }
+
+        public void PauseScene()
+        {
+            this.active = false;
+        }
+
+        public void ContinueScene()
+        {
+            this.active = true;
         }
     }
 }

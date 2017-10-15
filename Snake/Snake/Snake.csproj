@@ -119,7 +119,11 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="BackgroundParticles.cs" />
+    <Compile Include="BufferedKeyboard.cs" />
+    <Compile Include="BufferedGamePad.cs" />
+    <Compile Include="BufferedTouchPanel.cs" />
     <Compile Include="ForegroundParticles.cs" />
+    <Compile Include="BufferedInput.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

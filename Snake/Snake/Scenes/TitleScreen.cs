@@ -13,7 +13,6 @@ namespace Snake.Scenes
             PixelFont pixelFont = null;
             int selectionIndex = 0;
             int selectionCount = 3;
-            KeyboardState lastKeyboard = default(KeyboardState);
             BackgroundParticles backgroundParticles = new BackgroundParticles();
 
             LoadContent = content =>
@@ -22,24 +21,28 @@ namespace Snake.Scenes
                 pixelFont = new PixelFont();
             };
 
-            Update = delta =>
+            Update = (input, delta) =>
             {
                 backgroundParticles.Update(delta / 2);
-                var keyboard = Keyboard.GetState();
-                if (keyboard.IsKeyDown(Keys.Down) && lastKeyboard.IsKeyUp(Keys.Down))
+
+                var keyboard = input.Keyboard;
+                var touchPanel = input.TouchPanel;
+
+                if (keyboard.WhenDown(Keys.Down))
                 {
                     selectionIndex = Math.Min(selectionIndex + 1, selectionCount);
                 }
-                else if (keyboard.IsKeyDown(Keys.Up) && lastKeyboard.IsKeyUp(Keys.Up))
+                else if (keyboard.WhenDown(Keys.Up))
                 {
                     selectionIndex = Math.Max(selectionIndex - 1, 0);
                 }
-                else if (keyboard.IsKeyDown(Keys.Enter) && lastKeyboard.IsKeyDown(Keys.Enter))
+                else if (keyboard.WhenDown(Keys.Enter) || touchPanel.WhenTouching)
                 {
                     switch(selectionIndex)
                     {
                         case 0:
                             scenes.Level.BeginScene();
+                            this.PauseScene();
                             break;
 
                         case 1:
@@ -50,7 +53,6 @@ namespace Snake.Scenes
                             break;
                     }
                 }
-                lastKeyboard = keyboard;
             };
 
             Draw = engine =>
