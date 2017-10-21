@@ -23,14 +23,14 @@ namespace Snake.Scenes
 
             Update = (input, delta) =>
             {
-                backgroundParticles.Update(delta / 2);
+                backgroundParticles.Update(TimeSpan.FromTicks(delta.Ticks / 2));
 
                 var keyboard = input.Keyboard;
                 var touchPanel = input.TouchPanel;
 
                 if (keyboard.WhenDown(Keys.Down))
                 {
-                    selectionIndex = Math.Min(selectionIndex + 1, selectionCount);
+                    selectionIndex = Math.Min(selectionIndex + 1, selectionCount - 1);
                 }
                 else if (keyboard.WhenDown(Keys.Up))
                 {
@@ -41,11 +41,13 @@ namespace Snake.Scenes
                     switch(selectionIndex)
                     {
                         case 0:
-                            scenes.Level.BeginScene();
+                            scenes.Level.BeginScene(false);
                             this.PauseScene();
                             break;
 
                         case 1:
+                            scenes.Level.BeginScene(true);
+                            this.PauseScene();
                             break;
 
                         case 2:
@@ -80,8 +82,8 @@ namespace Snake.Scenes
                 {
                     var selections = new string[]
                     {
-                        "START GAME",
-                        "OPTIONS",
+                        "1 PLAYER",
+                        "2 PLAYERS",
                         "EXIT"
                     };
                     if (index == selectionIndex)

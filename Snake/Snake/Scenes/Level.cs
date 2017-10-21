@@ -31,10 +31,17 @@ namespace Snake.Scenes
 
             Input bufferedInput = default;
 
+            bool twoPlayerMode = false;
+            bool playerTwo = false;
+
             var field = new (Color color, float random)[16, 16];
 
             Begin = () =>
             {
+                if((bool)this.Parameters == true)
+                {
+                    twoPlayerMode = true;
+                }
                 foregroundParticles = new ForegroundParticles();
                 backgroundParticles = new BackgroundParticles();
 
@@ -62,11 +69,19 @@ namespace Snake.Scenes
                 {
                     if(moment == Moment.EatingApple)
                     {
+                        if (twoPlayerMode == true)
+                        {
+                            playerTwo = !playerTwo;
+                        }
                         eatingApple.Play();
                         foregroundParticles.AddEatenApple(new Vector2(state.apple.position.X, state.apple.position.Y));
                     }
                     if(moment == Moment.Dying)
                     {
+                        if(twoPlayerMode == true)
+                        {
+                            playerTwo = !playerTwo;
+                        }
                         dyingSnake.Play();
                         shake = 1f;
                         foregroundParticles.AddDyingSnake(state.snake.links.Select(l => new Vector2(l.X, l.Y)));
@@ -105,18 +120,28 @@ namespace Snake.Scenes
                     scenes.TitleScreen.ContinueScene();
                 }
                 var gameInput = bufferedInput;
-                gameInput = keyboard.WhenDown(Keys.Left) ? Input.Left : gameInput;
-                gameInput = keyboard.WhenDown(Keys.Right) ? Input.Right : gameInput;
-                gameInput = keyboard.WhenDown(Keys.Up) ? Input.Up : gameInput;
-                gameInput = keyboard.WhenDown(Keys.Down) ? Input.Down : gameInput;
+                if(twoPlayerMode == false || !playerTwo)
+                {
+                    gameInput = keyboard.WhenDown(Keys.Left) ? Input.Left : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.Right) ? Input.Right : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.Up) ? Input.Up : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.Down) ? Input.Down : gameInput;
 
-                gameInput = keyboard.WhenDown(Keys.LeftControl) ? Input.TurnLeft : gameInput;
-                gameInput = keyboard.WhenDown(Keys.RightControl) ? Input.TurnRight : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.LeftControl) ? Input.TurnLeft : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.RightControl) ? Input.TurnRight : gameInput;
+                }
+                if (twoPlayerMode == false || playerTwo)
+                {
+                    gameInput = keyboard.WhenDown(Keys.A) ? Input.Left : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.D) ? Input.Right : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.W) ? Input.Up : gameInput;
+                    gameInput = keyboard.WhenDown(Keys.S) ? Input.Down : gameInput;
 
-                gameInput = gamePad.WhenButtonDown(Buttons.DPadLeft) ? Input.Left : gameInput;
-                gameInput = gamePad.WhenButtonDown(Buttons.DPadRight) ? Input.Right : gameInput;
-                gameInput = gamePad.WhenButtonDown(Buttons.DPadUp) ? Input.Up : gameInput;
-                gameInput = gamePad.WhenButtonDown(Buttons.DPadDown) ? Input.Down : gameInput;
+                    gameInput = gamePad.WhenButtonDown(Buttons.DPadLeft) ? Input.Left : gameInput;
+                    gameInput = gamePad.WhenButtonDown(Buttons.DPadRight) ? Input.Right : gameInput;
+                    gameInput = gamePad.WhenButtonDown(Buttons.DPadUp) ? Input.Up : gameInput;
+                    gameInput = gamePad.WhenButtonDown(Buttons.DPadDown) ? Input.Down : gameInput;
+                }
 
                 if(touchPanel.WhenTouching)
                 {
@@ -184,6 +209,12 @@ namespace Snake.Scenes
                     }
                 }
 
+                var players = new[]{
+                    (head: Color.LightGreen, tail: Color.DarkGreen),
+                    (head: Color.LightYellow, tail: Color.DarkKhaki)
+                };
+                var player = playerTwo ? players[1] : players[0];
+
                 for (var y = 0; y < 16; y++)
                 {
                     for (var x = 0; x < 16; x++)
@@ -199,14 +230,16 @@ namespace Snake.Scenes
                         }
                         else if (head)
                         {
-                            engine.DrawSquare(x, y, 15f / 16f, Color.LightGreen, 0.1f, Runtime);
+                            var color = player.head;
+                            engine.DrawSquare(x, y, 15f / 16f, color, 0.1f, Runtime);
                         }
                         else if (tail)
                         {
+                            var color = player.tail;
                             foreach (var (link, index) in state.snake.links.Select((link, index) => (link: link, index: index)).Where(value => value.link == position))
                             {
                                 var scale = 1f - 1f * index / state.snake.length;
-                                engine.DrawSquare(x, y, 1f - 1f / 4f * scale, Color.DarkGreen, 0.03f, Runtime);
+                                engine.DrawSquare(x, y, 1f - 1f / 4f * scale, color, 0.03f, Runtime);
                             }
                         }
                     }

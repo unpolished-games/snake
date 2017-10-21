@@ -12,11 +12,19 @@ namespace Snake.Scenes
         private TimeSpan runtime;
         protected TimeSpan Runtime => runtime;
 
+        private object parameters;
+        protected object Parameters => parameters;
+
         public virtual void BeginScene()
         {
             this.active = true;
             this.runtime = TimeSpan.Zero;
             Begin?.Invoke();
+        }
+        public virtual void BeginScene<P>(P parameters)
+        {
+            this.parameters = parameters;
+            BeginScene();
         }
         public virtual void EndScene()
         {
