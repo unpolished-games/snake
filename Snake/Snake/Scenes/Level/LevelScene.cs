@@ -2,23 +2,23 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
 using System;
 using System.Linq;
 
-namespace Snake.Scenes
+namespace Snake.Scenes.Level
 {
-    internal class Level : Scene
+    internal class LevelScene : Scene
     {
         double shake;
         private Random random = new Random();
 
-        public Level(IScenes scenes)
+        public LevelScene(IScenes scenes)
         {
             ForegroundParticles foregroundParticles = default;
             BackgroundParticles backgroundParticles = default;
             Game game = default;
             State state = default;
+            Themes themes = default;
 
             Texture2D glowingTile = default;
             PixelFont pixelFont = default;
@@ -47,6 +47,7 @@ namespace Snake.Scenes
 
                 game = new Game(16);
                 state = game.Init(0);
+                themes = new Themes(levelsPerTheme: 10);
 
                 for (var y = 0; y < 16; y++)
                 {
@@ -170,7 +171,9 @@ namespace Snake.Scenes
 
             Draw = engine =>
             {
-                engine.ClearScreen(Color.DarkSlateBlue);
+                var theme = themes[state.score];
+
+                engine.ClearScreen(theme.BackgroundColor);
 
                 var _shake = Math.Pow(shake, 0.125f);
 
@@ -191,7 +194,8 @@ namespace Snake.Scenes
 
                 backgroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color, 0.2f, Runtime);
+                    var color = theme.ParticleColor(p.id);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, color, 0.2f, Runtime);
                 });
                 //engine.DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0, Runtime);
 
@@ -247,7 +251,8 @@ namespace Snake.Scenes
 
                 foregroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, p.color, 0.1f, Runtime);
+                    var color = theme.ParticleColor(p.id);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, color, 0.1f, Runtime);
                 });
 
                 pixelFont.DrawString($"                    Highscore\n{state.score}\n{state.highscore}", (x, y) =>

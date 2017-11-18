@@ -7,13 +7,15 @@ namespace Snake
 {
     class Particles
     {
+        List<(Vector2 position, Vector2 direction, float age, Color color, int id)> particles;
         protected Random random;
-        List<(Vector2 position, Vector2 direction, float age, Color color)> particles;
+        protected int id;
 
         public Particles()
         {
-            particles = new List<(Vector2 position, Vector2 direction, float age, Color color)>();
+            particles = new List<(Vector2 position, Vector2 direction, float age, Color color, int id)>();
             random = new Random();
+            id = 0;
         }
 
         public virtual void Update(TimeSpan delta)
@@ -23,13 +25,14 @@ namespace Snake
                 position: p.position + p.direction * (float)delta.TotalSeconds,
                 direction: p.direction + RandomDirection() * 0.1f,
                 age: p.age - (float)delta.TotalSeconds,
-                color: p.color
+                color: p.color,
+                id: p.id
             ))
             .Where(p => p.age > 0)
             .ToList();
         }
 
-        public void Each(Action<(Vector2 position, Vector2 direction, float age, Color color)> action)
+        public void Each(Action<(Vector2 position, Vector2 direction, float age, Color color, int id)> action)
         {
             foreach(var particle in particles)
             {
@@ -37,7 +40,7 @@ namespace Snake
             }
         }
 
-        public void Add(params (Vector2 position, Vector2 direction, float age, Color color)[] particles)
+        public void Add(params (Vector2 position, Vector2 direction, float age, Color color, int id)[] particles)
         {
             this.particles.AddRange(particles);
         }

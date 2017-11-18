@@ -28,7 +28,7 @@ namespace Snake
         {
             SplashScreen = new Scenes.SplashScreen(this);
             TitleScreen = new Scenes.TitleScreen(this);
-            Level = new Scenes.Level(this);
+            Level = new Scenes.Level.LevelScene(this);
             input = new BufferedInput();
 
             graphics = new GraphicsDeviceManager(this)

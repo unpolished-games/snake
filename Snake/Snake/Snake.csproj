@@ -24,6 +24,7 @@
     <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>B0FC12DC0F32640819D7D590E40E9A09ACB83786</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -99,9 +100,9 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <Reference Include="MonoGame.Framework">
-      <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\WindowsUniversal\MonoGame.Framework.dll</HintPath>
-    </Reference>
+    <PackageReference Include="MonoGame.Framework.WindowsUniversal">
+      <Version>3.6.0.1625</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.0.1</Version>
     </PackageReference>
@@ -114,6 +115,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <None Include="Snake_TemporaryKey.pfx" />
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -134,7 +136,9 @@
     <Compile Include="Game.cs" />
     <Compile Include="Particles.cs" />
     <Compile Include="PixelFont.cs" />
-    <Compile Include="Scenes\Level.cs" />
+    <Compile Include="Scenes\Level\EnumerableExtensions.cs" />
+    <Compile Include="Scenes\Level\LevelScene.cs" />
+    <Compile Include="Scenes\Level\Themes.cs" />
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Scenes\SplashScreen.cs" />
     <Compile Include="Scenes\TitleScreen.cs" />
@@ -199,7 +203,6 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Properties\Default.rd.xml" />
-    <None Include="Snake_TemporaryKey.pfx" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
