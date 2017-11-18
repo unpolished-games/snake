@@ -126,6 +126,7 @@
     <Compile Include="BufferedTouchPanel.cs" />
     <Compile Include="ForegroundParticles.cs" />
     <Compile Include="BufferedInput.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -138,6 +139,8 @@
     <Compile Include="PixelFont.cs" />
     <Compile Include="Scenes\Level\EnumerableExtensions.cs" />
     <Compile Include="Scenes\Level\LevelScene.cs" />
+    <Compile Include="Scenes\Level\SimpleTheme.cs" />
+    <Compile Include="Scenes\Level\Theme.cs" />
     <Compile Include="Scenes\Level\Themes.cs" />
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Scenes\SplashScreen.cs" />
