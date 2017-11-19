@@ -19,6 +19,8 @@ namespace Snake.Scenes.Level
             Game game = default;
             State state = default;
             Themes themes = default;
+            Theme last = default;
+            float themefade = 0;
 
             Texture2D glowingTile = default;
             PixelFont pixelFont = default;
@@ -76,6 +78,7 @@ namespace Snake.Scenes.Level
                         }
                         eatingApple.Play();
                         foregroundParticles.AddEatenApple(new Vector2(state.apple.position.X, state.apple.position.Y));
+                        last = themes[state.score - 1];
                     }
                     if(moment == Moment.Dying)
                     {
@@ -114,6 +117,16 @@ namespace Snake.Scenes.Level
                 var keyboard = input.Keyboard;
                 var touchPanel = input.TouchPanel;
                 var gamePad = input.GamePad;
+
+                if (last != null)
+                {
+                    themefade += (float)delta.TotalSeconds;
+                    if(themefade >= 1f)
+                    {
+                        last = null;
+                        themefade = 0f;
+                    }
+                }
 
                 if (keyboard.WhenDown(Keys.Escape))
                 {
@@ -173,7 +186,9 @@ namespace Snake.Scenes.Level
             {
                 var theme = themes[state.score];
 
-                engine.ClearScreen(theme.BackgroundColor);
+                var backgroundcolor = last != null ? Color.Lerp(last.Background, theme.Background, themefade) : theme.Background;
+
+                engine.ClearScreen(backgroundcolor);
 
                 var _shake = Math.Pow(shake, 0.125f);
 
@@ -194,7 +209,7 @@ namespace Snake.Scenes.Level
 
                 backgroundParticles.Each(p =>
                 {
-                    var color = theme.ParticleColor(p.id);
+                    var color = theme.Particle(p.id);
                     engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, color, 0.2f, Runtime);
                 });
                 //engine.DrawSquare(graphics.GraphicsDevice, 0, 0, 2, Color.Black, 0, Runtime);
@@ -214,7 +229,7 @@ namespace Snake.Scenes.Level
                 }
 
                 var players = new[]{
-                    (head: Color.LightGreen, tail: Color.DarkGreen),
+                    (head: theme.Snake.Head, tail: theme.Snake.Tail),
                     (head: Color.LightYellow, tail: Color.DarkKhaki)
                 };
                 var player = playerTwo ? players[1] : players[0];
@@ -230,7 +245,7 @@ namespace Snake.Scenes.Level
                         var apple = state.apple.position == position;
                         if (apple)
                         {
-                            engine.DrawSquare(x, y, 15f / 16f, Color.Red, 0.15f, Runtime);
+                            engine.DrawSquare(x, y, 15f / 16f, theme.Apple, 0.15f, Runtime);
                         }
                         else if (head)
                         {
@@ -251,7 +266,7 @@ namespace Snake.Scenes.Level
 
                 foregroundParticles.Each(p =>
                 {
-                    var color = theme.ParticleColor(p.id);
+                    var color = theme.Particle(p.id);
                     engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, color, 0.1f, Runtime);
                 });
 

@@ -4,7 +4,9 @@ namespace Snake.Scenes.Level
 {
     interface Theme
     {
-        Color BackgroundColor { get; }
-        Color ParticleColor(int index);
+        Color Background { get; }
+        (Color Head, Color Tail) Snake { get; }
+        Color Apple { get; }
+        Color Particle(int index);
     }
 }
