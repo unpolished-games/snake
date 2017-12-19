@@ -66,7 +66,7 @@ namespace Snake.Scenes
 
                 backgroundParticles.Each(p =>
                 {
-                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color * .2f, 0.2f, Runtime);
+                    engine.DrawSquare(p.position.X, p.position.Y, p.age * .1f, p.color * .1f, 0.2f, Runtime);
                 });
 
                 var seconds = (float)Runtime.TotalSeconds;
@@ -96,15 +96,50 @@ namespace Snake.Scenes
                     }
                 }
 
-                DrawAnimatedMessage(engine, pixelFont, "SNAKE", seconds, heights[3], 1f / 12f);
+                DrawAnimatedMessage(engine, pixelFont, "SNAKE", seconds, heights[3], 1f / 12f, Alignment.Centered);
 
-                DrawAnimatedMessage(engine, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 48f);
-                DrawAnimatedMessage(engine, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 48f);
-                DrawAnimatedMessage(engine, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 48f);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .6f, 1f / 48f, Alignment.Right);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + .9f, 1f / 48f, Alignment.Right);
+                DrawAnimatedMessage(engine, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.2f, 1f / 48f, Alignment.Right);
             };
         }
 
-        private void DrawAnimatedMessage(Engine engine, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale)
+        private void DrawAnimatedMessage(Engine engine, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale, Alignment alignment)
+        {
+            var screenshift = ((float)engine.Window.ClientBounds.Width) / engine.Window.ClientBounds.Height;
+            var textshift = -(float)((pixelFont.Width + 1) * message.Length - 1);
+            if (alignment == Alignment.Left)
+            {
+                screenshift = -screenshift;
+                textshift = 0;
+            }
+            if(alignment == Alignment.Right)
+            {
+                // no changes needed
+            }
+            if(alignment == Alignment.Centered)
+            {
+                screenshift = 0;
+                textshift = textshift / 2;
+            }
+            engine.ConfigureEffect(e =>
+            {
+                e.World =
+                    Matrix.CreateTranslation(textshift + .5f, -pixelFont.Height / 2f + .5f, 0)
+                    * Matrix.CreateScale(scale)
+                    * Matrix.CreateTranslation(screenshift, verticalShift, 0);
+            });
+
+            pixelFont.DrawString(message, (x, y) =>
+            {
+                var dx = x / (float)message.Length;
+                var fade = Math.Max(0, Math.Min(1, (seconds - .5f) - dx / 3));
+                var color = Grey((float)Math.Sqrt(fade));
+                engine.DrawSquare(x, y, 1f, color, 0.1f + (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), Runtime);
+            });
+        }
+
+        private void DrawAnimatedMessageCentered(Engine engine, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale)
         {
             engine.ConfigureEffect(e =>
             {

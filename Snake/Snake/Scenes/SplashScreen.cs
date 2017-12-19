@@ -25,6 +25,7 @@ namespace Snake.Scenes
                     Runtime > TimeSpan.FromSeconds(5 + delayForWindowsRecordings)
                     || input.Keyboard.WhenDown(Keys.Enter)
                     || input.TouchPanel.WhenTouching
+                    || input.GamePad.WhenButtonDown(Buttons.A)
                 )
                 {
                     this.EndScene();

@@ -137,6 +137,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="Particles.cs" />
     <Compile Include="PixelFont.cs" />
+    <Compile Include="Scenes\Alignment.cs" />
     <Compile Include="Scenes\Level\EnumerableExtensions.cs" />
     <Compile Include="Scenes\Level\LevelScene.cs" />
     <Compile Include="Scenes\Level\SimpleTheme.cs" />
