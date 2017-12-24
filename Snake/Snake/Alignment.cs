@@ -3,7 +3,8 @@
     enum Alignment
     {
         Centered,
-        Left,
-        Right
+        TopLeft,
+        BottomRight,
+        TopRight
     }
 }

@@ -121,11 +121,11 @@ namespace Snake.Scenes
                     }
                 }
 
-                engine.DrawAnimatedMessage(Runtime, pixelFont, "SNAKE", seconds, heights[3] - .2f, 1f / 12f, Alignment.Left);
+                engine.DrawAnimatedMessage(Runtime, pixelFont, "SNAKE", seconds, heights[3] - .2f, 1f / 12f, Alignment.TopLeft);
 
-                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .9f, 1f / 48f, Alignment.Right);
-                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + 1.15f, 1f / 48f, Alignment.Right);
-                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.4f, 1f / 48f, Alignment.Right);
+                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(0), seconds - 1.5f, heights[2] + .9f, 1f / 48f, Alignment.BottomRight);
+                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(1), seconds - 1.7f, heights[1] + 1.15f, 1f / 48f, Alignment.BottomRight);
+                engine.DrawAnimatedMessage(Runtime, pixelFont, getSelectionText(2), seconds - 1.9f, heights[0] + 1.4f, 1f / 48f, Alignment.BottomRight);
             };
         }
     }

@@ -179,14 +179,18 @@ namespace Snake
         {
             // zoom out a tiny bit to have some border...
             var _paddingScale = 0.975f;
-            var screenshift = ((float)Window.ClientBounds.Width) / Window.ClientBounds.Height;
+            var aspectRatio = ((float)Window.ClientBounds.Width) / Window.ClientBounds.Height;
+            var screenshift = Math.Max(aspectRatio, 1);
             var textshift = -(float)((pixelFont.Width + 1) * message.Length - 1);
-            if (alignment == Alignment.Left)
+            var yshift = 0f;
+
+            // horizontal
+            if (alignment == Alignment.TopLeft)
             {
                 screenshift = -screenshift;
                 textshift = 0;
             }
-            if (alignment == Alignment.Right)
+            if (alignment == Alignment.TopRight || alignment == Alignment.BottomRight)
             {
                 // no changes needed
             }
@@ -195,13 +199,28 @@ namespace Snake
                 screenshift = 0;
                 textshift = textshift / 2;
             }
+
+            // vertical
+            if (alignment == Alignment.TopLeft || alignment == Alignment.TopRight)
+            {
+                yshift = aspectRatio < 1 ? 1 / aspectRatio - 1 : 0;
+            }
+            if(alignment == Alignment.Centered)
+            {
+                // no changes needed
+            }
+            if(alignment == Alignment.BottomRight)
+            {
+                yshift = aspectRatio < 1 ? 1 - 1 / aspectRatio : 0;
+            }
+
             ConfigureEffect(e =>
             {
                 e.View = Matrix.CreateScale(_paddingScale);
                 e.World =
                     Matrix.CreateTranslation(textshift + .5f, -pixelFont.Height / 2f + .5f, 0)
                     * Matrix.CreateScale(scale)
-                    * Matrix.CreateTranslation(screenshift, verticalShift, 0);
+                    * Matrix.CreateTranslation(screenshift, verticalShift - yshift, 0);
             });
 
             pixelFont.DrawString(message, (x, y) =>
