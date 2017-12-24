@@ -7,26 +7,8 @@
     FontFamily="Segoe UI Light"
     FontSize="48"
     FontWeight="Bold"
-    DoubleTapped="Page_DoubleTapped"
     mc:Ignorable="d">
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <SwapChainPanel x:Name="monogameRenderTarget"/>
-
-        <TextBlock Padding="20 40" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed">Snake</TextBlock>
-
-        <Grid Padding="20 40" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition MinWidth="100"/>
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Row="0" Grid.Column="0" Foreground="Gray">Score</TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" TextAlignment="Right" x:Name="score">0</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="0" Foreground="Gray">Highscore</TextBlock>
-            <TextBlock Grid.Row="1" Grid.Column="1" TextAlignment="Right" x:Name="highscore">0</TextBlock>
-        </Grid>
     </Grid>
 </Page>

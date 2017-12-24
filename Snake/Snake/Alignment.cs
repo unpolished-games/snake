@@ -1,4 +1,4 @@
-﻿namespace Snake.Scenes
+﻿namespace Snake
 {
     enum Alignment
     {

@@ -42,11 +42,6 @@ namespace Snake
             {
                 if (state.score != this.state.score || state.highscore != this.state.highscore)
                 {
-                    var _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() =>
-                    {
-                        score.Text = $"{state.score}";
-                        highscore.Text = $"{state.highscore}";
-                    }));
                     if (state.highscore != this.state.highscore)
                     {
                         ApplicationData.Current.RoamingSettings.Values["HighPriority"] = state.highscore;
@@ -61,18 +56,6 @@ namespace Snake
             var highscore = Convert.ToInt32(ApplicationData.Current.RoamingSettings.Values["HighPriority"]);
 
             //engine.SetNewHighscore(highscore);
-        }
-
-        private void Page_DoubleTapped(object sender, Windows.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
-        {
-            if (ApplicationView.GetForCurrentView().IsFullScreenMode == false)
-            {
-                ApplicationView.GetForCurrentView().TryEnterFullScreenMode();
-            }
-            else
-            {
-                ApplicationView.GetForCurrentView().ExitFullScreenMode();
-            }
         }
     }
 }

@@ -163,5 +163,56 @@ namespace Snake
             };
             graphics.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleStrip, vertices, 0, 2);
         }
+
+
+
+        public void DrawAnimatedMessage(TimeSpan runtime, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale, Alignment alignment)
+        {
+            var i = 0;
+            foreach(var line in message.Split('\n'))
+            {
+                DrawAnimatedMessageLine(runtime, pixelFont, line, seconds, verticalShift + scale + (i++) * scale * (pixelFont.Height + 1), scale, alignment);
+            }
+        }
+
+        private void DrawAnimatedMessageLine(TimeSpan runtime, PixelFont pixelFont, string message, float seconds, float verticalShift, float scale, Alignment alignment)
+        {
+            // zoom out a tiny bit to have some border...
+            var _paddingScale = 0.975f;
+            var screenshift = ((float)Window.ClientBounds.Width) / Window.ClientBounds.Height;
+            var textshift = -(float)((pixelFont.Width + 1) * message.Length - 1);
+            if (alignment == Alignment.Left)
+            {
+                screenshift = -screenshift;
+                textshift = 0;
+            }
+            if (alignment == Alignment.Right)
+            {
+                // no changes needed
+            }
+            if (alignment == Alignment.Centered)
+            {
+                screenshift = 0;
+                textshift = textshift / 2;
+            }
+            ConfigureEffect(e =>
+            {
+                e.View = Matrix.CreateScale(_paddingScale);
+                e.World =
+                    Matrix.CreateTranslation(textshift + .5f, -pixelFont.Height / 2f + .5f, 0)
+                    * Matrix.CreateScale(scale)
+                    * Matrix.CreateTranslation(screenshift, verticalShift, 0);
+            });
+
+            pixelFont.DrawString(message, (x, y) =>
+            {
+                var dx = x / (float)message.Length;
+                var fade = Math.Max(0, Math.Min(1, (seconds - .5f) - dx / 3));
+                var color = Grey((float)Math.Sqrt(fade));
+                DrawSquare(x, y, 1f, color, 0.1f + (float)Math.Pow(1.1f * Math.Abs(1 - fade), 20), runtime);
+            });
+        }
+
+        private Color Grey(float brightness) => new Color(brightness, brightness, brightness, brightness);
     }
 }

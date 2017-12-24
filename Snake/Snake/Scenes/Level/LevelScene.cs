@@ -270,11 +270,7 @@ namespace Snake.Scenes.Level
                     engine.DrawSquare(p.position.X, p.position.Y, p.age * .3f, color, 0.1f, Runtime);
                 });
 
-                pixelFont.DrawString($"                    Highscore\n{state.score}\n{state.highscore}", (x, y) =>
-                {
-                    var scale = 1 / 8f;
-                    engine.DrawSquare(x * scale, y * scale, scale, Color.White, 0.1f, Runtime);
-                }, rightAlign: true);
+                engine.DrawAnimatedMessage(Runtime, pixelFont, $"Highscore\n{state.score}\n{state.highscore}", (float)Runtime.TotalSeconds - 1, -1, 1f / 96f, Alignment.Right);
             };
         }
     }
