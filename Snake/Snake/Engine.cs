@@ -105,15 +105,15 @@ namespace Snake
         protected override void Draw(GameTime gameTime)
         {
             graphics.GraphicsDevice.Clear(Color.Black);
-            var size = (width: graphics.PreferredBackBufferWidth, height: graphics.PreferredBackBufferHeight);
+            var (width, height) = (graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 
-            if (size.height < size.width)
+            if (height < width)
             {
-                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1f * size.height / size.width, 1, 1));
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1f * height / width, 1, 1));
             }
             else
             {
-                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * size.width / size.height, 1));
+                basicEffect.Projection = Matrix.CreateScale(1, -1, 1) * Matrix.CreateScale(new Vector3(1, 1f * width / height, 1));
             }
 
             graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;

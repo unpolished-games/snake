@@ -136,6 +136,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Particles.cs" />
+    <Compile Include="PersistentState.cs" />
     <Compile Include="PixelFont.cs" />
     <Compile Include="Alignment.cs" />
     <Compile Include="Scenes\Level\EnumerableExtensions.cs" />

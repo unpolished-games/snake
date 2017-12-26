@@ -48,7 +48,7 @@ namespace Snake.Scenes.Level
                 backgroundParticles = new BackgroundParticles();
 
                 game = new Game(16);
-                state = game.Init(0);
+                state = game.Init(PersistentState.Highscore);
                 themes = new Themes(levelsPerTheme: 10);
 
                 for (var y = 0; y < 16; y++)
@@ -168,6 +168,8 @@ namespace Snake.Scenes.Level
                     bufferToNextTick -= tickRate;
                     state = game.Update(state, gameInput);
                     gameInput = Input.None;
+
+                    PersistentState.Highscore = state.highscore;
                 }
 
                 bufferedInput = gameInput;
@@ -238,7 +240,6 @@ namespace Snake.Scenes.Level
                 {
                     for (var x = 0; x < 16; x++)
                     {
-                        var rect = (x0: x, y0: y, x1: x + 1, y1: y + 1);
                         var position = new System.Numerics.Vector2(x, y);
                         var tail = state.snake.links?.Any(link => link == position) ?? false;
                         var head = state.snake.position == position;
@@ -255,7 +256,7 @@ namespace Snake.Scenes.Level
                         else if (tail)
                         {
                             var color = player.tail;
-                            foreach (var (link, index) in state.snake.links.Select((link, index) => (link: link, index: index)).Where(value => value.link == position))
+                            foreach (var (link, index) in state.snake.links.Select((link, index) => ( link,  index)).Where(value => value.link == position))
                             {
                                 var scale = 1f - 1f * index / state.snake.length;
                                 engine.DrawSquare(x, y, 1f - 1f / 4f * scale, color, 0.03f, Runtime);
